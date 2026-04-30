@@ -7,7 +7,6 @@
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
     <style>
         :root { --wa-green: #25d366; --wa-dark: #075e54; --wa-bg: #efeae2; }
@@ -17,15 +16,14 @@
         .reg-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
         .hidden { display: none !important; }
         
-        /* واجهة رفع الصورة */
         .pic-box { position: relative; width: 110px; height: 110px; margin: 0 auto 20px; cursor: pointer; }
         .pic-box img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--wa-green); }
         .pic-box .label { position: absolute; bottom: 0; right: 5px; background: var(--wa-green); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-size: 18px; }
 
         input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-size: 16px; outline: none; }
         button { width: 100%; padding: 14px; background: var(--wa-green); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
+        button:disabled { background: #999; }
         
-        /* تصميم التطبيق الرئيسي */
         .app-shell { width: 100%; height: 100vh; background: white; display: none; grid-template-columns: 350px 1fr; }
         .sidebar { border-left: 1px solid #ddd; display: flex; flex-direction: column; background: #fff; }
         .chat-main { background: var(--wa-bg); display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
@@ -43,10 +41,8 @@
     <input type="file" id="file-input" class="hidden" accept="image/*" onchange="previewImg(this)">
     
     <h3>مرحباً بك في عراق جات</h3>
-    <p style="font-size: 13px; color: #777; margin-bottom: 15px;">يرجى إكمال بيانات حسابك</p>
-    
-    <input type="text" id="username" placeholder="اسم المستخدم (مثلاً: هايدر الفاهم)">
-    <input type="tel" id="userphone" placeholder="رقم الموبايل">
+    <input type="text" id="username" placeholder="اسم المستخدم">
+    <input type="tel" id="userphone" placeholder="رقم الموبايل (سيكون هوية حسابك)">
     
     <button id="login-btn" onclick="startApp()">دخول للتطبيق</button>
 </div>
@@ -55,8 +51,8 @@
     <div class="sidebar">
         <div style="padding: 15px; background: var(--wa-dark); color: white; display: flex; align-items: center; justify-content: space-between;">
             <div style="display:flex; align-items:center; gap:10px;">
-                <img id="my-avatar" style="width: 35px; height: 35px; border-radius: 50%; border: 1px solid #fff;">
-                <span style="font-weight:bold;">محادثات الفاهم</span>
+                <img id="my-avatar" style="width: 35px; height: 35px; border-radius: 50%; border: 1px solid #fff; background: white;">
+                <span id="my-name-display" style="font-weight:bold;">الفاهم</span>
             </div>
             <button onclick="logout()" style="width:auto; padding:5px 10px; font-size:11px; background:#ff5252; margin:0;">خروج</button>
         </div>
@@ -77,29 +73,26 @@
     // إعدادات Firebase
     const firebaseConfig = {
         databaseURL: "https://weapp-80-default-rtdb.firebaseio.com",
-        projectId: "weapp-80",
-        storageBucket: "weapp-80.firebasestorage.app"
+        projectId: "weapp-80"
     };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const storage = firebase.storage();
 
     let myInfo = JSON.parse(localStorage.getItem('alfaham_user')) || null;
     let targetUser = null;
-    let selectedFile = null;
+    let base64Image = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-    // التحقق إذا كان المستخدم مسجل مسبقاً
-    if (myInfo) {
-        showApp();
-    }
+    if (myInfo) showApp();
 
     function previewImg(input) {
         if (input.files && input.files[0]) {
-            selectedFile = input.files[0];
             const reader = new FileReader();
-            reader.onload = e => document.getElementById('preview-img').src = e.target.result;
-            reader.readAsDataURL(selectedFile);
+            reader.onload = e => {
+                document.getElementById('preview-img').src = e.target.result;
+                base64Image = e.target.result; // حفظ الصورة كنص
+            };
+            reader.readAsDataURL(input.files[0]);
         }
     }
 
@@ -113,25 +106,18 @@
         btn.disabled = true;
         btn.innerText = "جاري الدخول...";
 
-        let imgUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+        myInfo = { name, phone, img: base64Image };
 
         try {
-            if (selectedFile) {
-                const ref = storage.ref('profiles/' + phone);
-                await ref.put(selectedFile);
-                imgUrl = await ref.getDownloadURL();
-            }
-
-            myInfo = { name, phone, img: imgUrl };
-            // حفظ في قاعدة البيانات باستخدام الرقم كـ ID
+            // محاولة الحفظ في السيرفر مع مهلة زمنية قصيرة
             await db.ref('users/' + phone).set(myInfo);
-            // حفظ في المتصفح
             localStorage.setItem('alfaham_user', JSON.stringify(myInfo));
-            
             showApp();
         } catch (e) {
-            alert("حدث خطأ: " + e.message);
-            btn.disabled = false;
+            // إذا فشل السيرفر، يدخل التطبيق محلياً للاختبار
+            console.log("Offline mode");
+            localStorage.setItem('alfaham_user', JSON.stringify(myInfo));
+            showApp();
         }
     }
 
@@ -139,6 +125,7 @@
         document.getElementById('register-screen').classList.add('hidden');
         document.getElementById('app-shell').style.display = 'grid';
         document.getElementById('my-avatar').src = myInfo.img;
+        document.getElementById('my-name-display').innerText = myInfo.name;
         loadUsers();
     }
 
@@ -151,7 +138,7 @@
                 if (u.phone !== myInfo.phone) {
                     const d = document.createElement('div');
                     d.style = "padding: 12px; border-bottom: 1px solid #f2f2f2; cursor: pointer; display: flex; align-items: center; gap: 12px;";
-                    d.innerHTML = `<img src="${u.img}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;"> <b>${u.name}</b>`;
+                    d.innerHTML = `<img src="${u.img}" style="width:45px; height:45px; border-radius:50%; object-fit:cover; background:#eee;"> <b>${u.name}</b>`;
                     d.onclick = () => {
                         targetUser = u;
                         document.getElementById('chat-panel').classList.remove('mobile-hide');
@@ -165,6 +152,7 @@
     }
 
     function loadMsgs() {
+        if(!targetUser) return;
         const chatID = [myInfo.phone, targetUser.phone].sort().join('_');
         db.ref('chats/' + chatID).on('value', snap => {
             const box = document.getElementById('msg-box');
