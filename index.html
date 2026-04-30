@@ -862,10 +862,10 @@
         </div>
         <h2>We App</h2>
         <input id="login-phone" type="tel" placeholder="رقم الهاتف">
-        <input id="login-name" type="text" placeholder="الاسم (للتسجيل)">
-        <button onclick="login(event)">تسجيل الدخول</button>
-        <button type="button" onclick="register(event)" class="btn-register">إنشاء حساب جديد</button>
-        <p class="login-note">إذا كنت تستخدم رقمًا جديدًا، أدخل اسمك ثم اضغط إنشاء حساب.</p>
+        <input id="login-name" type="text" placeholder="الاسم (اختياري)">
+        <button id="login-btn" onclick="login(event)">تسجيل الدخول</button>
+        <button id="register-btn" type="button" onclick="register(event)" class="btn-register">إنشاء حساب جديد</button>
+        <p class="login-note">إذا كنت تستخدم رقمًا جديدًا، أدخل اسمك (اختياري) ثم اضغط إنشاء حساب.</p>
     </div>
 </div>
 
@@ -1017,12 +1017,19 @@
 <script>
     let db;
     try {
+        if (typeof firebase === 'undefined') {
+            throw new Error("Firebase library not loaded");
+        }
         const firebaseConfig = { databaseURL: "https://weapp-80-default-rtdb.firebaseio.com" };
         const fb = firebase.initializeApp(firebaseConfig);
         db = fb.database();
+        console.log("Firebase initialized");
     } catch (e) {
         console.error("Firebase initialization failed:", e);
-        alert("فشل تهيئة الاتصال بقاعدة البيانات. يرجى التأكد من اتصال الإنترنت.");
+        // Only alert if we're not in a weird state
+        setTimeout(() => {
+            alert("فشل تهيئة الاتصال بقاعدة البيانات. يرجى التأكد من اتصال الإنترنت وتحديث الصفحة.");
+        }, 1000);
     }
 
     let my = null;
@@ -1119,13 +1126,23 @@
     };
 
     function initApp() {
-        document.getElementById('login-screen').style.display = 'none';
-        document.getElementById('app-content').style.display = 'block';
-        document.getElementById('header-img').src = my.img || 'https://b.top4top.io/p_3771kqoax0.png';
-        requestNotificationPermission();
-        loadRecentChats();
-        loadMyContacts();
-        listenForIncomingCalls();
+        try {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            document.getElementById('header-img').src = my.img || 'https://b.top4top.io/p_3771kqoax0.png';
+            
+            requestNotificationPermission();
+            
+            // Call these safely
+            setTimeout(() => {
+                try { loadRecentChats(); } catch(e) { console.error("Error loading chats:", e); }
+                try { loadMyContacts(); } catch(e) { console.error("Error loading contacts:", e); }
+                try { listenForIncomingCalls(); } catch(e) { console.error("Error listening for calls:", e); }
+            }, 100);
+        } catch (e) {
+            console.error("App initialization failed:", e);
+            showLogin();
+        }
     }
 
     function showLogin() {
@@ -1153,11 +1170,20 @@
             return;
         }
 
-        const loginBtn = document.querySelector('button[onclick^="login"]');
+        const loginBtn = document.getElementById('login-btn');
         const originalBtnText = loginBtn ? loginBtn.innerText : 'تسجيل الدخول';
         if (loginBtn) {
             loginBtn.innerText = 'جارٍ الدخول...';
             loginBtn.disabled = true;
+        }
+
+        if (!db) {
+            showConfirm('خطأ في الاتصال', 'قاعدة البيانات غير متصلة. تأكد من الإنترنت.', true);
+            if (loginBtn) {
+                loginBtn.innerText = originalBtnText;
+                loginBtn.disabled = false;
+            }
+            return;
         }
 
         db.ref('users/' + cleanPhone).once('value')
@@ -1171,20 +1197,21 @@
                     my = s.val();
                     my.phone = cleanPhone;
                     
-                    // Always try to restore locally saved name for the user themselves
+                    // Priority: LocalStorage Name > DB Name > Input Name > Empty
                     const localData = JSON.parse(localStorage.getItem('we_user_v2'));
                     if (localData && localData.phone === cleanPhone && localData.name) {
                         my.name = localData.name;
-                    } else {
-                        my.name = name || ''; // Use input name if provided, else empty
+                    } else if (name) {
+                        my.name = name;
+                    } else if (!my.name) {
+                        my.name = '';
                     }
                     
                     localStorage.setItem('we_user_v2', JSON.stringify(my));
                     initApp();
-                } else if (cleanPhone) {
-                    register(e);
                 } else {
-                    showConfirm('غير موجود', 'هذا الرقم غير مسجل. أدخل اسمك واضغط "إنشاء حساب جديد".', true);
+                    // Auto-register if user doesn't exist
+                    register(e);
                 }
             })
             .catch(error => {
@@ -1201,7 +1228,7 @@
         if (e) e.preventDefault();
         const phoneInput = document.getElementById('login-phone');
         const nameInput = document.getElementById('login-name');
-        const registerBtn = document.querySelector('.btn-register');
+        const registerBtn = document.getElementById('register-btn');
         
         const phone = phoneInput.value.trim();
         const name = nameInput.value.trim();
@@ -1210,12 +1237,18 @@
             showConfirm('رقم مطلوب', 'يرجى إدخال رقم الهاتف.', true);
             return;
         }
-        if (!name) {
-            showConfirm('اسم مطلوب', 'يرجى إدخال اسمك ليتم حفظه على جهازك.', true);
+
+        const cleanPhone = phone.replace(/[^\d+]/g, '');
+        if (!cleanPhone) {
+            showConfirm('رقم غير صحيح', 'يرجى إدخال رقم هاتف صالح.', true);
             return;
         }
 
-        const cleanPhone = phone.replace(/[^\d+]/g, '');
+        if (!db) {
+            showConfirm('خطأ في الاتصال', 'قاعدة البيانات غير متصلة. تأكد من الإنترنت.', true);
+            return;
+        }
+
         const originalBtnText = registerBtn ? registerBtn.innerText : 'إنشاء حساب جديد';
         if (registerBtn) {
             registerBtn.innerText = 'جارٍ الإنشاء...';
@@ -1229,7 +1262,8 @@
                         registerBtn.innerText = originalBtnText;
                         registerBtn.disabled = false;
                     }
-                    showConfirm('مسجل سابقاً', 'هذا الرقم موجود. استخدم تسجيل الدخول.', true);
+                    // If user exists, just log them in
+                    login(e);
                     return;
                 }
 
