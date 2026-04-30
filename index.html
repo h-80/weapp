@@ -2245,8 +2245,10 @@
         
         callConnection.ontrack = event => {
             console.log('Remote track received:', event.streams[0]);
-            callRemoteStream = event.streams[0];
-            attachRemoteStream();
+            if (event.streams && event.streams[0]) {
+                callRemoteStream = event.streams[0];
+                attachRemoteStream();
+            }
         };
 
         callConnection.onicecandidate = event => {
@@ -2354,26 +2356,34 @@
         const remoteAudio = document.getElementById('remote-audio');
         const remotePlaceholder = document.getElementById('remote-placeholder');
         
+        console.log('Attaching remote stream, type:', callType);
+        
         if (callType === 'video') {
             remoteVideo.srcObject = callRemoteStream;
-            remoteVideo.setAttribute('autoplay', '');
-            remoteVideo.setAttribute('playsinline', '');
             remoteVideo.style.display = 'block';
             remoteAudio.style.display = 'none';
-            // Important: ensure video plays (especially on mobile)
-            remoteVideo.play().catch(e => {
-                console.warn('Video play error:', e);
-                // Fallback: some browsers need a user gesture to play video even if muted is not set
-                // But for remote video, it's usually allowed after a user click (which happened to start/accept call)
+            
+            // Explicitly play and handle mobile autoplay restrictions
+            remoteVideo.play().then(() => {
+                console.log('Remote video playing successfully');
+                remotePlaceholder.style.display = 'none';
+            }).catch(e => {
+                console.warn('Video play error, retrying...', e);
+                // Fallback for some mobile browsers
+                setTimeout(() => {
+                    remoteVideo.play().then(() => {
+                        remotePlaceholder.style.display = 'none';
+                    }).catch(err => console.error('Final video play error:', err));
+                }, 1000);
             });
         } else {
             remoteAudio.srcObject = callRemoteStream;
-            remoteAudio.setAttribute('autoplay', '');
             remoteVideo.style.display = 'none';
             remoteAudio.style.display = 'block';
-            remoteAudio.play().catch(e => console.warn('Audio play error:', e));
+            remoteAudio.play().then(() => {
+                remotePlaceholder.style.display = 'none';
+            }).catch(e => console.warn('Audio play error:', e));
         }
-        remotePlaceholder.style.display = 'none';
     }
 
     function setCallStatus(message) {
