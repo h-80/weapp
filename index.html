@@ -1152,14 +1152,18 @@
                 if (s.exists()) {
                     my = s.val();
                     my.phone = cleanPhone;
-                    // Restore name from local storage if available, or use a default
-                    if (!my.name) {
-                        const localData = JSON.parse(localStorage.getItem('we_user_v2'));
-                        my.name = (localData && localData.phone === cleanPhone) ? localData.name : 'أنا';
+                    
+                    // Always try to restore locally saved name for the user themselves
+                    const localData = JSON.parse(localStorage.getItem('we_user_v2'));
+                    if (localData && localData.phone === cleanPhone && localData.name) {
+                        my.name = localData.name;
+                    } else {
+                        my.name = name || ''; // Use input name if provided, else empty
                     }
+                    
                     localStorage.setItem('we_user_v2', JSON.stringify(my));
                     initApp();
-                } else if (name) {
+                } else if (cleanPhone) {
                     register(e);
                 } else {
                     showConfirm('غير موجود', 'هذا الرقم غير مسجل. أدخل اسمك واضغط "إنشاء حساب جديد".', true);
@@ -1213,8 +1217,6 @@
 
                 const newUser = {
                     phone: cleanPhone,
-                    // We store ONLY the number and basic info in DB as requested
-                    // The name is kept for the user locally
                     img: 'https://b.top4top.io/p_3771kqoax0.png',
                     status: 'متصل الآن',
                     createdAt: Date.now()
@@ -1226,8 +1228,8 @@
                             registerBtn.innerText = originalBtnText;
                             registerBtn.disabled = false;
                         }
-                        // Save name locally only
-                        my = { ...newUser, name: name };
+                        // Save identity (phone) + locally chosen name
+                        my = { ...newUser, name: name || '' };
                         localStorage.setItem('we_user_v2', JSON.stringify(my));
                         showConfirm('تم التسجيل', 'تم إنشاء حسابك بنجاح!', false);
                         initApp();
@@ -1398,21 +1400,33 @@
     function quickAddContact() {
         if (!peer || !peer.phone) return;
         const currentPhone = peer.phone;
-        const currentName = peer.name || currentPhone;
+        const currentName = getDisplayName(currentPhone, currentPhone);
         
-        const contactName = prompt("أدخل اسم جهة الاتصال لحفظها:", currentName);
-        if (contactName !== null && contactName.trim() !== "") {
-            if (!myFriends.some(c => c.phone === currentPhone)) {
-                myFriends.push({ phone: currentPhone, name: contactName.trim() });
-                localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
-                
-                // Update UI
-                document.getElementById('c-name').innerText = contactName.trim();
-                document.getElementById('add-contact-header-btn').style.display = 'none';
-                
-                loadMyContacts();
-                loadRecentChats();
-                showConfirm('تمت الإضافة', 'تمت إضافة ' + contactName.trim() + ' لجهات اتصالك.', false);
+        const contactName = prompt("أدخل اسم جهة الاتصال لحفظها (اتركه فارغاً لعرض الرقم):", (currentName === currentPhone ? "" : currentName));
+        
+        if (contactName !== null) {
+            const finalName = contactName.trim();
+            const existingIndex = myFriends.findIndex(c => c.phone === currentPhone);
+            
+            if (existingIndex === -1) {
+                myFriends.push({ phone: currentPhone, name: finalName });
+            } else {
+                myFriends[existingIndex].name = finalName;
+            }
+            
+            localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
+            
+            // Update UI
+            const displayName = finalName || currentPhone;
+            document.getElementById('c-name').innerText = displayName;
+            
+            // Always show the button if name is empty, hide if name exists
+            document.getElementById('add-contact-header-btn').style.display = finalName ? 'none' : 'block';
+            
+            loadMyContacts();
+            loadRecentChats();
+            if (finalName) {
+                showConfirm('تمت الإضافة', 'تم حفظ ' + finalName + ' في جهات اتصالك.', false);
             }
         }
     }
@@ -1472,8 +1486,12 @@
 
     function getDisplayName(phone, fallback) {
         if (!phone) return fallback || '';
+        // 1. Check in my friends list (Saved contacts)
         const friend = myFriends.find(f => f.phone === phone);
-        return friend ? friend.name : (fallback || phone);
+        if (friend && friend.name) return friend.name;
+        
+        // 2. Return fallback (phone number) if no name is saved
+        return fallback || phone;
     }
 
     function loadMyContacts() {
@@ -1740,10 +1758,11 @@
         cAvatar.onclick = () => openImageViewer(u.img, displayName || 'صورة الملف الشخصي');
         document.getElementById('c-name').innerText = displayName;
         
-        // Show/Hide Add Contact button if number is not in friends list
+        // Show/Hide Add Contact button if no name is saved locally
         const addBtn = document.getElementById('add-contact-header-btn');
-        const isFriend = myFriends.some(f => f.phone === u.phone);
-        addBtn.style.display = isFriend ? 'none' : 'block';
+        const friend = myFriends.find(f => f.phone === u.phone);
+        const hasSavedName = friend && friend.name && friend.name.trim().length > 0;
+        addBtn.style.display = hasSavedName ? 'none' : 'block';
 
         document.getElementById('chat-status').innerText = u.status || 'متصل الآن';
         document.getElementById('c-input').value = '';
