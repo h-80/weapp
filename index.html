@@ -1867,13 +1867,15 @@
             });
             await callConnection.setLocalDescription(offer);
 
+            const offerData = { type: offer.type, sdp: offer.sdp };
+
             const displayName = getDisplayName(peer.phone, peer.name);
             const payload = {
                 caller: my.phone,
                 callee: peer.phone,
                 type,
                 status: 'ringing',
-                offer: offer.toJSON(),
+                offer: offerData,
                 callerName: my.name || my.phone,
                 callerImg: my.img || '',
                 createdAt: Date.now()
@@ -1887,7 +1889,7 @@
                 type,
                 callerName: my.name || my.phone,
                 callerImg: my.img || '',
-                offer: offer.toJSON()
+                offer: offerData
             });
 
             setCallStatus('جارٍ الرنين...');
@@ -1925,7 +1927,8 @@
             const answer = await callConnection.createAnswer();
             await callConnection.setLocalDescription(answer);
             
-            await callRef.update({ answer: answer.toJSON(), status: 'in-call' });
+            const answerData = { type: answer.type, sdp: answer.sdp };
+            await callRef.update({ answer: answerData, status: 'in-call' });
             await db.ref('incoming_calls/' + my.phone + '/' + callId).remove();
             
             setCallStatus('متصل الآن');
@@ -1978,7 +1981,12 @@
         callConnection.onicecandidate = event => {
             if (event.candidate && callRef) {
                 const branch = isCaller ? 'caller' : 'callee';
-                callRef.child('candidates/' + branch).push(event.candidate.toJSON());
+                const candidateData = {
+                    candidate: event.candidate.candidate,
+                    sdpMid: event.candidate.sdpMid,
+                    sdpMLineIndex: event.candidate.sdpMLineIndex
+                };
+                callRef.child('candidates/' + branch).push(candidateData);
             }
         };
 
