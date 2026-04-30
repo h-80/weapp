@@ -611,7 +611,7 @@
             50% { box-shadow: 0 12px 24px rgba(239, 68, 68, 0.34), 0 0 0 12px rgba(239, 68, 68, 0.16); }
         }
         .chat-input-area {
-            padding: 10px 12px;
+            padding: 10px 16px; /* Increased padding for safety */
             background: #f0f2f5;
             display: flex;
             gap: 8px;
@@ -619,12 +619,13 @@
             border-top: 1px solid rgba(15, 23, 42, 0.08);
             position: sticky;
             bottom: 0;
-            z-index: 1;
+            z-index: 10; /* Ensure it's above other elements */
             direction: rtl;
+            box-sizing: border-box; /* Crucial for width calculations */
         }
         .mic-btn {
-            width: 48px;
-            height: 48px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: none;
             background: var(--app-theme);
@@ -635,6 +636,7 @@
             box-shadow: 0 4px 12px rgba(37, 211, 102, 0.22);
             cursor: pointer;
             flex-shrink: 0;
+            margin: 0; /* Prevent cutting off */
         }
         .send-btn-fixed {
             background: var(--app-theme);
@@ -2277,14 +2279,18 @@
     }
 
     async function rejectIncomingCall() {
-        if (!pendingIncomingCall) return;
-        const incoming = pendingIncomingCall;
-        pendingIncomingCall = null;
-        await db.ref('incoming_calls/' + my.phone + '/' + incoming.callId).remove();
-        if (callRef) {
-            await callRef.remove();
+        if (callId) {
+            console.log('Rejecting call:', callId);
+            // 1. Remove notification for callee
+            await db.ref('incoming_calls/' + my.phone + '/' + callId).remove().catch(e => console.error('Error removing incoming call:', e));
+            
+            // 2. Notify caller by removing the call session
+            if (callRef) {
+                await callRef.remove().catch(e => console.error('Error removing call ref:', e));
+            } else {
+                await db.ref('calls/' + callId).remove().catch(e => console.error('Error removing calls node:', e));
+            }
         }
-        hideCallOverlay();
         cleanupCall();
     }
 
