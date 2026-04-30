@@ -33,16 +33,35 @@
             cursor: pointer; margin-top: 10px;
         }
 
-        /* الهيدر */
+        /* الهيدر المحدث مع التوسيط */
         header { 
             background: var(--wa-green); 
-            color: white; padding: 0 15px; display: flex; justify-content: space-between; 
-            align-items: center; height: 85px; box-shadow: 0 3px 12px rgba(0,0,0,0.2);
+            color: white; 
+            padding: 0 15px; 
+            display: grid; /* استخدام grid لضمان التوسيط الدقيق */
+            grid-template-columns: 55px 1fr 55px; 
+            align-items: center; 
+            height: 85px; 
+            box-shadow: 0 3px 12px rgba(0,0,0,0.2);
         }
-        .header-brand { display: flex; align-items: center; gap: 15px; }
-        .header-logo-img { height: 65px; width: auto; object-fit: contain; }
-        .app-name { font-weight: 900; font-size: 26px; }
-        .h-avatar { width: 55px; height: 55px; border-radius: 50%; border: 3px solid white; cursor: pointer; object-fit: cover; }
+        .header-logo-img { 
+            height: 55px; /* نفس حجم صورة الملف الشخصي */
+            width: 55px; 
+            object-fit: contain; 
+        }
+        .app-name { 
+            font-weight: 900; 
+            font-size: 24px; 
+            text-align: center; /* توسيط النص */
+        }
+        .h-avatar { 
+            width: 55px; 
+            height: 55px; 
+            border-radius: 50%; 
+            border: 2px solid white; 
+            cursor: pointer; 
+            object-fit: cover; 
+        }
 
         /* محتوى التطبيق */
         .screen { height: calc(100vh - 85px); overflow-y: auto; background: white; position: relative; }
@@ -50,7 +69,7 @@
         .user-row img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; }
         .fab { position: fixed; bottom: 30px; left: 30px; background: var(--wa-green); color: white; width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; }
 
-        /* نافذة الملف الشخصي (التصميم السابق) */
+        /* نافذة الملف الشخصي */
         .profile-modal {
             position: fixed; inset: 0; background: rgba(0,0,0,0.7);
             z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
@@ -74,9 +93,9 @@
 </head>
 <body>
 
-<!-- شاشة الدخول -->
 <div id="login-screen" class="hidden">
     <div style="text-align: center; width: 100%; max-width: 400px;">
+        <!-- شعار شاشة الدخول يبقى كما هو بالتعديل السابق -->
         <img src="https://a.top4top.io/p_3772g2v8s0.png" class="login-main-logo">
         <div class="edit-pic-wrapper" onclick="document.getElementById('f-reg').click()">
             <img id="reg-pre" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
@@ -90,10 +109,13 @@
 
 <div id="app-content">
     <header>
-        <div class="header-brand">
-            <img src="https://d.top4top.io/p_37720paiy0.png" class="header-logo-img">
-            <span class="app-name">We App</span>
-        </div>
+        <!-- الشعار الجديد في اليمين بحجم صورة البروفايل -->
+        <img src="https://c.top4top.io/p_3771lv9ra1.png" class="header-logo-img">
+        
+        <!-- اسم التطبيق في المنتصف -->
+        <span class="app-name">We App</span>
+        
+        <!-- صورة الملف الشخصي في اليسار -->
         <img id="header-img" class="h-avatar" onclick="toggleProfile(true)">
     </header>
 
@@ -108,7 +130,7 @@
     </div>
 </div>
 
-<!-- العودة للملف الشخصي السابق -->
+<!-- المودال والدردشة والسكربت (نفس الوظائف السابقة) -->
 <div id="profile-modal" class="profile-modal">
     <div class="profile-card">
         <span style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:25px;" onclick="toggleProfile(false)">&times;</span>
@@ -123,7 +145,6 @@
     </div>
 </div>
 
-<!-- واجهة الدردشة -->
 <div id="chat-ui" class="chat-full">
     <div class="chat-header">
         <span onclick="closeChat()" style="cursor:pointer; font-size:24px; padding:0 5px;">⬅</span>
@@ -138,7 +159,6 @@
 </div>
 
 <script>
-    // تهيئة Firebase (بياناتك الأصلية)
     const fb = firebase.initializeApp({ databaseURL: "https://weapp-80-default-rtdb.firebaseio.com" });
     const db = fb.database();
 
@@ -203,9 +223,7 @@
         toggleProfile(false);
     }
 
-    function logout() {
-        if(confirm("هل تريد الخروج؟")) { localStorage.clear(); location.reload(); }
-    }
+    function logout() { if(confirm("خروج؟")) { localStorage.clear(); location.reload(); } }
 
     function loadRecents() {
         db.ref('chats').on('value', s => {
