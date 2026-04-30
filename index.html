@@ -9,41 +9,41 @@
     <style>
         :root { 
             --wa-green: #25d366; 
-            --wa-dark: #1ebea5; 
+            --wa-header: #25d366; 
             --bg: #f0f2f5; 
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg); height: 100vh; overflow: hidden; }
 
-        /* الهيدر المطور: الشعار والاسم يميناً والصورة يساراً */
+        /* الهيدر المحدث بالشعار الجديد */
         header { 
-            background: var(--wa-green); 
+            background: var(--wa-header); 
             color: white; 
-            padding: 0 15px; 
+            padding: 0 12px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             height: 60px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
         .header-brand { display: flex; align-items: center; gap: 10px; }
-        .header-logo-img { height: 35px; width: 35px; object-fit: contain; }
-        .app-name { font-weight: bold; font-size: 20px; }
+        .header-logo-img { height: 40px; width: auto; object-fit: contain; }
+        .app-name { font-weight: bold; font-size: 19px; color: white; }
         .h-avatar { 
             width: 40px; height: 40px; border-radius: 50%; 
             border: 2px solid white; cursor: pointer; object-fit: cover; 
         }
 
-        /* شاشة الدخول بالشعار الكامل */
+        /* شاشة الدخول */
         #login-screen { 
             position: fixed; inset: 0; background: white; z-index: 6000; 
             display: flex; align-items: center; justify-content: center; padding: 20px; 
         }
-        .login-main-logo { width: 180px; margin-bottom: 30px; }
+        .login-main-logo { width: 170px; margin-bottom: 25px; }
 
         .screen { height: calc(100vh - 60px); overflow-y: auto; background: white; position: relative; }
         .user-row { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-        .user-row img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
+        .user-row img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
         
         .fab { 
             position: fixed; bottom: 25px; left: 25px; background: var(--wa-green); 
@@ -61,7 +61,7 @@
         .edit-pic-wrapper { width: 110px; height: 110px; margin: 0 auto 20px; cursor: pointer; }
         .edit-pic-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--wa-green); }
         
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-size: 16px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; }
         .btn-action { width: 100%; padding: 12px; background: var(--wa-green); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .btn-out { width: 100%; padding: 10px; background: #ff4b4b; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
@@ -81,21 +81,20 @@
 <div id="login-screen" class="hidden">
     <div style="text-align: center; width: 100%; max-width: 350px;">
         <img src="https://a.top4top.io/p_3772g2v8s0.png" class="login-main-logo">
-        
         <div class="edit-pic-wrapper" onclick="document.getElementById('f-reg').click()">
             <img id="reg-pre" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
         </div>
         <input type="file" id="f-reg" class="hidden" accept="image/*" onchange="compress(this, 'reg-pre')">
-        <input type="text" id="n-reg" placeholder="الاسم المستعار">
-        <input type="tel" id="p-reg" placeholder="رقم الهاتف">
-        <button class="btn-action" onclick="register()">بدء الدردشة</button>
+        <input type="text" id="n-reg" placeholder="اسمك المستعار">
+        <input type="tel" id="p-reg" placeholder="رقم الموبايل">
+        <button class="btn-action" onclick="register()">انضم الآن</button>
     </div>
 </div>
 
 <div id="app-content">
     <header>
         <div class="header-brand">
-            <img src="https://j.top4top.io/p_3772jglbu1.png" class="header-logo-img">
+            <img src="https://d.top4top.io/p_37720paiy0.png" class="header-logo-img">
             <span class="app-name">We App</span>
         </div>
         <img id="header-img" class="h-avatar" onclick="toggleProfile(true)">
@@ -107,7 +106,7 @@
     </div>
 
     <div id="contacts-screen" class="screen hidden">
-        <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; cursor:pointer; font-weight:bold;" onclick="hideContacts()">⬅ العودة للمحادثات</div>
+        <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; cursor:pointer; font-weight:bold;" onclick="hideContacts()">⬅ العودة</div>
         <div id="all-list"></div>
     </div>
 </div>
@@ -115,14 +114,14 @@
 <div id="profile-modal" class="profile-modal">
     <div class="profile-card">
         <span style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:25px;" onclick="toggleProfile(false)">&times;</span>
-        <h3 style="margin-bottom:20px;">إعدادات الحساب</h3>
+        <h3 style="margin-bottom:20px;">الملف الشخصي</h3>
         <div class="edit-pic-wrapper" onclick="document.getElementById('f-edit').click()">
             <img id="edit-pre" src="">
         </div>
         <input type="file" id="f-edit" class="hidden" accept="image/*" onchange="compress(this, 'edit-pre')">
-        <input type="text" id="edit-name-input" placeholder="الاسم">
-        <button class="btn-action" onclick="updateProfile()">حفظ التعديلات</button>
-        <button class="btn-out" onclick="logout()">تسجيل الخروج</button>
+        <input type="text" id="edit-name-input" placeholder="تغيير الاسم">
+        <button class="btn-action" onclick="updateProfile()">حفظ التحديث</button>
+        <button class="btn-out" onclick="logout()">خروج نهائي</button>
     </div>
 </div>
 
@@ -134,7 +133,7 @@
     </div>
     <div id="c-msgs" class="msgs"></div>
     <div style="padding:10px; background:#f0f2f5; display:flex; gap:10px;">
-        <input type="text" id="c-input" placeholder="اكتب رسالة...">
+        <input type="text" id="c-input" placeholder="رسالة جديدة...">
         <button onclick="sendMsg()" style="padding:10px 20px; background:var(--wa-green); border:none; color:white; border-radius:10px;">إرسال</button>
     </div>
 </div>
@@ -173,7 +172,7 @@
     async function register() {
         const n = document.getElementById('n-reg').value.trim();
         const p = document.getElementById('p-reg').value.trim();
-        if(!n || !p) return alert("يرجى إدخال كافة البيانات");
+        if(!n || !p) return alert("الرجاء تعبئة الحقول");
         my = { name: n, phone: p, img: tempImg || "https://cdn-icons-png.flaticon.com/512/149/149071.png" };
         await db.ref('users/' + p).set(my);
         localStorage.setItem('we_user_v2', JSON.stringify(my));
@@ -202,11 +201,10 @@
         localStorage.setItem('we_user_v2', JSON.stringify(my));
         document.getElementById('header-img').src = my.img;
         toggleProfile(false);
-        alert("تم التحديث بنجاح");
     }
 
     function logout() {
-        if(confirm("هل تريد الخروج من الحساب؟")) { localStorage.clear(); location.reload(); }
+        if(confirm("هل تريد مغادرة التطبيق؟")) { localStorage.clear(); location.reload(); }
     }
 
     function loadRecents() {
