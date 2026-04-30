@@ -2005,13 +2005,18 @@
         });
     }
 
+    let iceCandidateQueue = [];
+
     function watchCallSession(chatId) {
         if (currentChatCallId === chatId) return;
         currentChatCallId = chatId;
         if (callRef) {
             callRef.off();
         }
+        
+        iceCandidateQueue = [];
         callRef = db.ref('calls/' + chatId);
+        
         callRef.on('value', async snapshot => {
             const data = snapshot.val();
             if (!data) {
@@ -2020,6 +2025,8 @@
                 }
                 return;
             }
+
+            // Callee side: detect incoming call notification
             if (!callConnection && !isCaller && data.offer && data.callee === my.phone && !pendingIncomingCall) {
                 pendingIncomingCall = { callId: chatId, ...data };
                 callType = data.type;
@@ -2028,20 +2035,44 @@
                 showCallOverlay('incoming');
                 setCallStatus('مكالمة واردة من ' + displayName);
             }
+
+            // Caller side: receive answer from callee
             if (data.answer && callConnection && !callConnection.remoteDescription) {
-                await callConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
-                updateCallStatus('متصل الآن');
-                showCallOverlay('connected');
+                try {
+                    console.log('Setting remote description (answer)');
+                    await callConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                    setCallStatus('متصل الآن');
+                    showCallOverlay('connected');
+                    
+                    // Process queued candidates
+                    console.log('Processing queued candidates:', iceCandidateQueue.length);
+                    while (iceCandidateQueue.length) {
+                        const candidate = iceCandidateQueue.shift();
+                        await callConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => console.error('Queued candidate error:', e));
+                    }
+                } catch (e) {
+                    console.error('Error setting remote description (answer):', e);
+                }
             }
+
             if (data.status === 'ended') {
                 cleanupCall();
             }
         });
+
+        // Listen for candidates from the other side
         const oppositeRole = isCaller ? 'callee' : 'caller';
         callRef.child('candidates/' + oppositeRole).on('child_added', snapshot => {
             const candidate = snapshot.val();
             if (!candidate || !callConnection) return;
-            callConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(console.error);
+            
+            if (callConnection.remoteDescription) {
+                console.log('Adding ICE candidate immediately');
+                callConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => console.error('ICE candidate error:', e));
+            } else {
+                console.log('Queueing ICE candidate');
+                iceCandidateQueue.push(candidate);
+            }
         });
     }
 
@@ -2140,6 +2171,14 @@
 
             const remoteDesc = new RTCSessionDescription(incoming.offer);
             await callConnection.setRemoteDescription(remoteDesc);
+            console.log('Remote description (offer) set successfully');
+
+            // Process queued candidates
+            console.log('Processing queued candidates for callee:', iceCandidateQueue.length);
+            while (iceCandidateQueue.length) {
+                const candidate = iceCandidateQueue.shift();
+                await callConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(e => console.error('Queued candidate error:', e));
+            }
             
             const answer = await callConnection.createAnswer();
             await callConnection.setLocalDescription(answer);
@@ -2190,16 +2229,18 @@
         try {
             callConnection = new RTCPeerConnection(config);
             console.log('RTCPeerConnection created successfully');
+            
+            // Add local tracks to connection
+            if (callLocalStream) {
+                console.log('Adding local tracks to connection');
+                callLocalStream.getTracks().forEach(track => {
+                    callConnection.addTrack(track, callLocalStream);
+                });
+            }
         } catch (e) {
             console.error('Failed to create RTCPeerConnection:', e);
             showConfirm('خطأ في النظام', 'جهازك لا يدعم تقنية الاتصال المباشر (WebRTC).', true);
             return;
-        }
-        
-        if (callLocalStream) {
-            callLocalStream.getTracks().forEach(track => {
-                callConnection.addTrack(track, callLocalStream);
-            });
         }
         
         callConnection.ontrack = event => {
@@ -2222,7 +2263,7 @@
 
         callConnection.oniceconnectionstatechange = () => {
             console.log('ICE Connection State:', callConnection.iceConnectionState);
-            if (callConnection.iceConnectionState === 'connected') {
+            if (callConnection.iceConnectionState === 'connected' || callConnection.iceConnectionState === 'completed') {
                 setCallStatus('متصل الآن');
                 showCallOverlay('connected');
             }
