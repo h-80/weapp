@@ -11,78 +11,55 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg); height: 100vh; overflow: hidden; }
 
-        /* هيدر احترافي: الشعار يمين والصورة يسار */
+        /* الهيدر مع الشعار الشفاف */
         header { 
             background: var(--wa-dark); 
             color: white; 
-            padding: 10px 15px; 
+            padding: 0 15px; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            height: 60px;
+            height: 65px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        .logo-text { font-weight: bold; font-size: 20px; letter-spacing: 1px; }
+        .header-logo { height: 45px; object-fit: contain; }
         .h-avatar { 
-            width: 42px; 
-            height: 42px; 
-            border-radius: 50%; 
-            border: 2px solid white; 
-            cursor: pointer; 
-            object-fit: cover; 
-            transition: 0.3s;
+            width: 42px; height: 42px; border-radius: 50%; 
+            border: 2px solid white; cursor: pointer; object-fit: cover; 
         }
-        .h-avatar:active { transform: scale(0.9); }
 
-        /* شاشات التطبيق */
-        .screen { height: calc(100vh - 60px); overflow-y: auto; background: white; position: relative; }
+        /* شاشة الدخول مع الشعار الرئيسي */
+        #login-screen { 
+            position: fixed; inset: 0; background: white; z-index: 6000; 
+            display: flex; align-items: center; justify-content: center; padding: 20px; 
+        }
+        .login-logo { width: 150px; margin-bottom: 20px; }
+
+        .screen { height: calc(100vh - 65px); overflow-y: auto; background: white; position: relative; }
         .user-row { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .user-row img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-        .fab { position: fixed; bottom: 25px; left: 25px; background: var(--wa-green); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
-
-        /* نافذة الملف الشخصي (التي تفتح من اليسار) */
-        .profile-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 5000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-        }
-        .profile-card {
-            background: white;
-            width: 85%;
-            max-width: 350px;
-            padding: 30px 20px;
-            border-radius: 20px;
-            text-align: center;
-            position: relative;
-        }
-        .edit-pic-wrapper {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            position: relative;
-            cursor: pointer;
-        }
-        .edit-pic-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--wa-green); }
-        .edit-pic-wrapper .camera-icon {
-            position: absolute; bottom: 5px; right: 5px;
-            background: var(--wa-green); color: white;
-            width: 32px; height: 32px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; border: 2px solid white;
-        }
-
-        .profile-card input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-size: 16px; }
-        .btn-save { width: 100%; padding: 12px; background: var(--wa-green); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
-        .btn-logout { width: 100%; padding: 10px; background: #ff4747; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; color: #888; cursor: pointer; }
-
-        /* شاشة الدخول */
-        #login-screen { position: fixed; inset: 0; background: white; z-index: 6000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .hidden { display: none !important; }
         
+        .fab { 
+            position: fixed; bottom: 25px; left: 25px; background: var(--wa-green); 
+            color: white; width: 60px; height: 60px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; font-size: 30px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; 
+        }
+
+        /* نافذة الملف الشخصي */
+        .profile-modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+            z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        }
+        .profile-card { background: white; width: 85%; max-width: 350px; padding: 30px 20px; border-radius: 20px; text-align: center; position: relative; }
+        
+        .edit-pic-wrapper { width: 110px; height: 110px; margin: 0 auto 20px; position: relative; cursor: pointer; }
+        .edit-pic-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--wa-green); }
+        
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; }
+        .btn-save { width: 100%; padding: 12px; background: var(--wa-green); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .btn-logout { width: 100%; padding: 10px; background: #ff4747; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+
         /* واجهة الدردشة */
         .chat-full { position: fixed; inset: 0; background: #e5ddd5; z-index: 2000; display: none; flex-direction: column; }
         .chat-header { background: #ededed; padding: 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #ddd; }
@@ -90,26 +67,28 @@
         .bbl { padding: 8px 12px; border-radius: 8px; max-width: 80%; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
         .me { align-self: flex-end; background: #dcf8c6; }
         .them { align-self: flex-start; background: white; }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
 <div id="login-screen" class="hidden">
     <div style="text-align: center; width: 100%; max-width: 350px;">
+        <img src="https://e.top4top.io/p_3771yr28m3.png" class="login-logo">
         <div class="edit-pic-wrapper" onclick="document.getElementById('f-reg').click()">
             <img id="reg-pre" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
         </div>
         <input type="file" id="f-reg" class="hidden" accept="image/*" onchange="compress(this, 'reg-pre')">
-        <h2>We App</h2>
         <input type="text" id="n-reg" placeholder="الاسم">
         <input type="tel" id="p-reg" placeholder="رقم الهاتف">
-        <button class="btn-save" onclick="register()">إنشاء الحساب</button>
+        <button class="btn-save" onclick="register()">بدء الاستخدام</button>
     </div>
 </div>
 
 <div id="app-content">
     <header>
-        <div class="logo-text">We App</div>
+        <img src="https://f.top4top.io/p_3771r7jhb4.png" class="header-logo">
         <img id="header-img" class="h-avatar" onclick="toggleProfile(true)">
     </header>
 
@@ -119,18 +98,17 @@
     </div>
 
     <div id="contacts-screen" class="screen hidden">
-        <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; cursor:pointer;" onclick="hideContacts()">⬅ رجوع</div>
+        <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; cursor:pointer; font-weight:bold;" onclick="hideContacts()">⬅ جهات الاتصال</div>
         <div id="all-list"></div>
     </div>
 </div>
 
 <div id="profile-modal" class="profile-modal">
     <div class="profile-card">
-        <span class="close-modal" onclick="toggleProfile(false)">&times;</span>
-        <h3>الملف الشخصي</h3>
+        <span style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:25px;" onclick="toggleProfile(false)">&times;</span>
+        <h3 style="margin-bottom:15px;">الملف الشخصي</h3>
         <div class="edit-pic-wrapper" onclick="document.getElementById('f-edit').click()">
             <img id="edit-pre" src="">
-            <div class="camera-icon">📷</div>
         </div>
         <input type="file" id="f-edit" class="hidden" accept="image/*" onchange="compress(this, 'edit-pre')">
         <input type="text" id="edit-name-input">
@@ -141,7 +119,7 @@
 
 <div id="chat-ui" class="chat-full">
     <div class="chat-header">
-        <span onclick="closeChat()" style="cursor:pointer; font-size:24px;">⬅</span>
+        <span onclick="closeChat()" style="cursor:pointer; font-size:24px; padding:0 5px;">⬅</span>
         <img id="c-avatar" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">
         <b id="c-name"></b>
     </div>
@@ -186,7 +164,7 @@
     async function register() {
         const n = document.getElementById('n-reg').value.trim();
         const p = document.getElementById('p-reg').value.trim();
-        if(!n || !p) return alert("اكمل بياناتك");
+        if(!n || !p) return alert("يرجى إكمال البيانات");
         my = { name: n, phone: p, img: tempImg || "https://cdn-icons-png.flaticon.com/512/149/149071.png" };
         await db.ref('users/' + p).set(my);
         localStorage.setItem('we_user_v2', JSON.stringify(my));
@@ -205,31 +183,22 @@
             document.getElementById('edit-pre').src = my.img;
             document.getElementById('edit-name-input').value = my.name;
             tempImg = my.img;
-        } else {
-            modal.style.display = 'none';
-        }
+        } else { modal.style.display = 'none'; }
     }
 
     async function updateProfile() {
-        const newName = document.getElementById('edit-name-input').value.trim();
-        if(!newName) return;
-        my.name = newName;
+        my.name = document.getElementById('edit-name-input').value.trim();
         my.img = tempImg;
         await db.ref('users/' + my.phone).update({ name: my.name, img: my.img });
         localStorage.setItem('we_user_v2', JSON.stringify(my));
         document.getElementById('header-img').src = my.img;
         toggleProfile(false);
-        alert("تم تحديث الملف الشخصي");
     }
 
     function logout() {
-        if(confirm("هل أنت متأكد من تسجيل الخروج؟")) {
-            localStorage.clear();
-            location.reload();
-        }
+        if(confirm("خروج من التطبيق؟")) { localStorage.clear(); location.reload(); }
     }
 
-    // نظام الدردشة المعتاد
     function loadRecents() {
         db.ref('chats').on('value', s => {
             const l = document.getElementById('recent-list'); l.innerHTML = '';
