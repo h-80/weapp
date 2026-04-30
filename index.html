@@ -1661,59 +1661,70 @@
             const box = document.getElementById('c-msgs');
             box.innerHTML = '';
             const allMsgs = [];
+            
             s.forEach(mS => {
                 const m = mS.val();
                 if ((m.timestamp || 0) > deletionTime || !m.timestamp) {
                     allMsgs.push(m);
                     const msgKey = mS.key;
+                    const isMe = m.u === my.phone;
                     const time = m.ts || '';
-                    const isRead = m.u === my.phone && m.r === true;
+                    const isRead = isMe && m.r === true;
                     const timeClass = isRead ? 'bubble-time read' : 'bubble-time';
-                    const meta = m.u === my.phone
-                        ? `<span class="${timeClass}">${time} ✓✓</span>`
-                        : `<span class="${timeClass}">${time}</span>`;
-                    let content = '';
-                if (m.img) {
-                    content += `
-                        <div class="image-message">
-                            <img class="chat-image" src="${m.img}" alt="صورة" />
-                        </div>
-                    `;
-                } else if (m.audio) {
-                    content += `
-                        <div class="audio-message">
-                            <div class="audio-body">
-                                <span class="audio-icon">🎙️</span>
-                                <audio controls class="audio-player" src="${m.audio}"></audio>
+                    
+                    let contentHTML = '';
+                    if (m.img) {
+                        contentHTML = `
+                            <div class="image-message">
+                                <img class="chat-image" src="${m.img}" alt="صورة" />
                             </div>
-                        </div>
-                    `;
-                } else if (m.t) {
-                    content += `<span>${m.t}</span>`;
-                }
-                
-                if (!content) return; // Skip invalid messages
-                    box.innerHTML += `<div class="bubble ${m.u === my.phone ? 'me' : 'them'} ${m.audio ? 'audio-bubble' : ''} ${m.img ? 'image-bubble' : ''}" data-msg-id="${msgKey}" data-msg-user="${m.u}">${content}${meta}</div>`;
-                    const bubbleEl = box.lastElementChild;
-                    if (bubbleEl) {
-                        const imgEl = bubbleEl.querySelector('.chat-image');
+                        `;
+                    } else if (m.audio) {
+                        contentHTML = `
+                            <div class="audio-message">
+                                <div class="audio-body">
+                                    <span class="audio-icon">🎙️</span>
+                                    <audio controls class="audio-player" src="${m.audio}"></audio>
+                                </div>
+                            </div>
+                        `;
+                    } else if (m.t) {
+                        contentHTML = `<span>${m.t}</span>`;
+                    }
+                    
+                    if (!contentHTML) return;
+
+                    const bubbleEl = document.createElement('div');
+                    bubbleEl.className = `bubble ${isMe ? 'me' : 'them'} ${m.audio ? 'audio-bubble' : ''} ${m.img ? 'image-bubble' : ''}`;
+                    bubbleEl.dataset.msgId = msgKey;
+                    bubbleEl.dataset.msgUser = m.u;
+                    
+                    const metaHTML = `<span class="${timeClass}">${time} ${isMe ? (m.r ? '✓✓' : '✓') : ''}</span>`;
+                    bubbleEl.innerHTML = contentHTML + metaHTML;
+
+                    // Add Listeners
+                    if (isMe) {
                         const deleteListener = async () => {
-                            if (bubbleEl.dataset.msgUser !== my.phone) {
-                                showConfirm('غير مسموح', 'يمكنك حذف رسائلك فقط.', true);
-                                return;
-                            }
-                            if (await showConfirm('حذف الرسالة؟', 'هل تريد حذف هذه الرسالة نهائياً؟')) {
+                            const confirmed = await showConfirm('حذف الرسالة؟', 'هل تريد حذف هذه الرسالة نهائياً لدى الجميع؟');
+                            if (confirmed) {
                                 deleteChatMessage(id, msgKey);
                             }
                         };
+                        
+                        const imgEl = bubbleEl.querySelector('.chat-image');
                         if (imgEl) {
                             imgEl.addEventListener('click', () => openImageViewer(m.img, 'صورة المحادثة'));
                             addLongPressListener(imgEl, deleteListener);
-                            addLongPressListener(bubbleEl, deleteListener);
-                        } else {
-                            addLongPressListener(bubbleEl, deleteListener);
+                        }
+                        addLongPressListener(bubbleEl, deleteListener);
+                    } else if (m.img) {
+                        const imgEl = bubbleEl.querySelector('.chat-image');
+                        if (imgEl) {
+                            imgEl.addEventListener('click', () => openImageViewer(m.img, 'صورة المحادثة'));
                         }
                     }
+
+                    box.appendChild(bubbleEl);
                 }
             });
             updateChatSeenCount(id, allMsgs.length);
