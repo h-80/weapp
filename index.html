@@ -3,120 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>عراق جات - الفاهم Pro</title>
+    <title>عراق جات - الفاهم</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
 
     <style>
         :root { --wa-green: #25d366; --wa-dark: #075e54; --wa-bg: #efeae2; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
 
-        .card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
+        .reg-card { background: white; padding: 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
         .hidden { display: none !important; }
         
         /* واجهة رفع الصورة */
-        .profile-upload { position: relative; width: 100px; height: 100px; margin: 0 auto 20px; cursor: pointer; }
-        .profile-upload img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--wa-green); }
-        .profile-upload .plus { position: absolute; bottom: 0; right: 0; background: var(--wa-green); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-size: 20px; }
+        .pic-box { position: relative; width: 110px; height: 110px; margin: 0 auto 20px; cursor: pointer; }
+        .pic-box img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--wa-green); }
+        .pic-box .label { position: absolute; bottom: 0; right: 5px; background: var(--wa-green); color: white; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; font-size: 18px; }
 
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-size: 16px; outline: none; }
-        button { width: 100%; padding: 14px; background: var(--wa-green); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-size: 16px; outline: none; }
+        button { width: 100%; padding: 14px; background: var(--wa-green); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 16px; margin-top: 10px; }
         
-        /* التطبيق الرئيسي */
+        /* تصميم التطبيق الرئيسي */
         .app-shell { width: 100%; height: 100vh; background: white; display: none; grid-template-columns: 350px 1fr; }
         .sidebar { border-left: 1px solid #ddd; display: flex; flex-direction: column; background: #fff; }
-        .chat-area { background: var(--wa-bg); display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
+        .chat-main { background: var(--wa-bg); display: flex; flex-direction: column; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
 
-        @media (max-width: 768px) { .app-shell { grid-template-columns: 1fr; } .mobile-hidden { display: none; } }
+        @media (max-width: 768px) { .app-shell { grid-template-columns: 1fr; } .mobile-hide { display: none; } }
     </style>
 </head>
 <body>
 
-<div id="login-step" class="card">
-    <img src="https://e.top4top.io/p_3771yr28m3.png" style="width: 80px; margin-bottom: 10px;">
-    <h2>عراق جات</h2>
-    <p style="color: #666; margin-bottom: 20px;">أدخل رقم هاتفك للبدء</p>
-    <input type="tel" id="phone-input" placeholder="07XXXXXXXX">
-    <button onclick="checkPhone()">استمرار</button>
-</div>
-
-<div id="profile-step" class="card hidden">
-    <h2>إنشاء حساب جديد</h2>
-    <p style="color: #666; margin-bottom: 20px;">اختر صورتك واسمك</p>
-    
-    <div class="profile-upload" onclick="document.getElementById('file-input').click()">
+<div id="register-screen" class="reg-card">
+    <div class="pic-box" onclick="document.getElementById('file-input').click()">
         <img id="preview-img" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
-        <div class="plus">+</div>
+        <div class="label">📷</div>
     </div>
-    <input type="file" id="file-input" class="hidden" accept="image/*" onchange="previewImage(this)">
+    <input type="file" id="file-input" class="hidden" accept="image/*" onchange="previewImg(this)">
     
-    <input type="text" id="username-input" placeholder="اسم المستخدم (مثال: هايدر)">
-    <button id="save-btn" onclick="registerUser()">حفظ والدخول</button>
+    <h3>مرحباً بك في عراق جات</h3>
+    <p style="font-size: 13px; color: #777; margin-bottom: 15px;">يرجى إكمال بيانات حسابك</p>
+    
+    <input type="text" id="username" placeholder="اسم المستخدم (مثلاً: هايدر الفاهم)">
+    <input type="tel" id="userphone" placeholder="رقم الموبايل">
+    
+    <button id="login-btn" onclick="startApp()">دخول للتطبيق</button>
 </div>
 
 <div id="app-shell" class="app-shell">
     <div class="sidebar">
-        <div style="padding: 15px; background: var(--wa-dark); color: white; display: flex; align-items: center; gap: 10px;">
-            <img id="my-small-avatar" style="width: 35px; height: 35px; border-radius: 50%; border: 1px solid white;">
-            <span>محادثات الفاهم</span>
+        <div style="padding: 15px; background: var(--wa-dark); color: white; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img id="my-avatar" style="width: 35px; height: 35px; border-radius: 50%; border: 1px solid #fff;">
+                <span style="font-weight:bold;">محادثات الفاهم</span>
+            </div>
+            <button onclick="logout()" style="width:auto; padding:5px 10px; font-size:11px; background:#ff5252; margin:0;">خروج</button>
         </div>
         <div id="users-list" style="overflow-y: auto; flex: 1;"></div>
     </div>
-    <div class="chat-area mobile-hidden" id="chat-panel">
+    
+    <div class="chat-main mobile-hide" id="chat-panel">
         <div id="chat-header" style="padding: 15px; background: #ededed; border-bottom: 1px solid #ddd; font-weight: bold;"></div>
-        <div id="msg-container" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px;"></div>
-        <div style="padding: 10px; background: #f0f2f5; display: flex; gap: 10px; align-items: center;">
+        <div id="msg-box" style="flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px;"></div>
+        <div style="padding: 10px; background: #f0f2f5; display: flex; gap: 10px;">
             <input type="text" id="msg-input" placeholder="اكتب رسالة..." style="margin: 0; background: white;">
-            <button onclick="sendMsg()" style="width: 50px; padding: 10px;">➤</button>
+            <button onclick="send()" style="width: 50px; margin:0; padding:10px;">➤</button>
         </div>
     </div>
 </div>
 
 <script>
-    // إعدادات Firebase الخاصة بك
+    // إعدادات Firebase
     const firebaseConfig = {
-        apiKey: "AIzaSyCtwuFrMZr3ZI3yVAL9hFqJNRlHUPB0EWM",
-        authDomain: "weapp-80.firebaseapp.com",
         databaseURL: "https://weapp-80-default-rtdb.firebaseio.com",
         projectId: "weapp-80",
-        storageBucket: "weapp-80.appspot.com" // تأكد من صحة هذا الرابط في الكونسول
+        storageBucket: "weapp-80.firebasestorage.app"
     };
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const auth = firebase.auth();
     const storage = firebase.storage();
 
-    let myPhone = "";
-    let myData = null;
-    let targetPhone = "";
+    let myInfo = JSON.parse(localStorage.getItem('alfaham_user')) || null;
+    let targetUser = null;
     let selectedFile = null;
 
-    // التحقق من رقم الهاتف
-    async function checkPhone() {
-        myPhone = document.getElementById('phone-input').value.trim();
-        if (myPhone.length < 10) return alert("يرجى إدخال رقم هاتف صحيح");
-
-        // تسجيل دخول مجهول لتجاوز قيود الحماية مؤقتاً
-        try {
-            await auth.signInAnonymously();
-            const snap = await db.ref('users/' + myPhone).once('value');
-            if (snap.exists()) {
-                myData = snap.val();
-                loginSuccess();
-            } else {
-                document.getElementById('login-step').classList.add('hidden');
-                document.getElementById('profile-step').classList.remove('hidden');
-            }
-        } catch (e) { alert("خطأ في الاتصال بـ Firebase: " + e.message); }
+    // التحقق إذا كان المستخدم مسجل مسبقاً
+    if (myInfo) {
+        showApp();
     }
 
-    // معاينة الصورة المختارة
-    function previewImage(input) {
+    function previewImg(input) {
         if (input.files && input.files[0]) {
             selectedFile = input.files[0];
             const reader = new FileReader();
@@ -125,33 +103,42 @@
         }
     }
 
-    // رفع الصورة وتسجيل المستخدم
-    async function registerUser() {
-        const name = document.getElementById('username-input').value.trim();
-        if (!name) return alert("يرجى كتابة اسمك");
+    async function startApp() {
+        const name = document.getElementById('username').value.trim();
+        const phone = document.getElementById('userphone').value.trim();
         
-        const btn = document.getElementById('save-btn');
+        if (!name || !phone) return alert("يرجى ملء جميع الحقول");
+
+        const btn = document.getElementById('login-btn');
         btn.disabled = true;
-        btn.innerText = "جاري الحفظ...";
+        btn.innerText = "جاري الدخول...";
 
         let imgUrl = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-        if (selectedFile) {
-            const ref = storage.ref(`avatars/${myPhone}`);
-            await ref.put(selectedFile);
-            imgUrl = await ref.getDownloadURL();
-        }
+        try {
+            if (selectedFile) {
+                const ref = storage.ref('profiles/' + phone);
+                await ref.put(selectedFile);
+                imgUrl = await ref.getDownloadURL();
+            }
 
-        myData = { phone: myPhone, name: name, img: imgUrl };
-        await db.ref('users/' + myPhone).set(myData);
-        loginSuccess();
+            myInfo = { name, phone, img: imgUrl };
+            // حفظ في قاعدة البيانات باستخدام الرقم كـ ID
+            await db.ref('users/' + phone).set(myInfo);
+            // حفظ في المتصفح
+            localStorage.setItem('alfaham_user', JSON.stringify(myInfo));
+            
+            showApp();
+        } catch (e) {
+            alert("حدث خطأ: " + e.message);
+            btn.disabled = false;
+        }
     }
 
-    function loginSuccess() {
-        document.getElementById('login-step').classList.add('hidden');
-        document.getElementById('profile-step').classList.add('hidden');
+    function showApp() {
+        document.getElementById('register-screen').classList.add('hidden');
         document.getElementById('app-shell').style.display = 'grid';
-        document.getElementById('my-small-avatar').src = myData.img;
+        document.getElementById('my-avatar').src = myInfo.img;
         loadUsers();
     }
 
@@ -161,47 +148,50 @@
             list.innerHTML = '';
             snap.forEach(child => {
                 const u = child.val();
-                if (u.phone !== myPhone) {
+                if (u.phone !== myInfo.phone) {
                     const d = document.createElement('div');
                     d.style = "padding: 12px; border-bottom: 1px solid #f2f2f2; cursor: pointer; display: flex; align-items: center; gap: 12px;";
                     d.innerHTML = `<img src="${u.img}" style="width:45px; height:45px; border-radius:50%; object-fit:cover;"> <b>${u.name}</b>`;
-                    d.onclick = () => startChat(u);
+                    d.onclick = () => {
+                        targetUser = u;
+                        document.getElementById('chat-panel').classList.remove('mobile-hide');
+                        document.getElementById('chat-header').innerText = u.name;
+                        loadMsgs();
+                    };
                     list.appendChild(d);
                 }
             });
         });
     }
 
-    function startChat(u) {
-        targetPhone = u.phone;
-        document.getElementById('chat-panel').classList.remove('mobile-hidden');
-        document.getElementById('chat-header').innerText = u.name;
-        loadMsgs();
-    }
-
     function loadMsgs() {
-        const id = [myPhone, targetPhone].sort().join('_');
-        db.ref('chats/' + id).on('value', snap => {
-            const container = document.getElementById('msg-container');
-            container.innerHTML = '';
+        const chatID = [myInfo.phone, targetUser.phone].sort().join('_');
+        db.ref('chats/' + chatID).on('value', snap => {
+            const box = document.getElementById('msg-box');
+            box.innerHTML = '';
             snap.forEach(mSnap => {
                 const m = mSnap.val();
-                const isMe = m.sender === myPhone;
+                const isMe = m.sender === myInfo.phone;
                 const div = document.createElement('div');
-                div.style = `align-self: ${isMe ? 'flex-end' : 'flex-start'}; background: ${isMe ? '#dcf8c6' : '#fff'}; padding: 8px 12px; border-radius: 10px; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1);`;
+                div.style = `align-self: ${isMe ? 'flex-end' : 'flex-start'}; background: ${isMe ? '#dcf8c6' : '#fff'}; padding: 8px 12px; border-radius: 10px; max-width: 75%; box-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size:14px;`;
                 div.innerText = m.text;
-                container.appendChild(div);
+                box.appendChild(div);
             });
-            container.scrollTop = container.scrollHeight;
+            box.scrollTop = box.scrollHeight;
         });
     }
 
-    function sendMsg() {
+    function send() {
         const input = document.getElementById('msg-input');
-        if (!input.value.trim() || !targetPhone) return;
-        const id = [myPhone, targetPhone].sort().join('_');
-        db.ref('chats/' + id).push({ sender: myPhone, text: input.value, time: Date.now() });
+        if (!input.value.trim() || !targetUser) return;
+        const chatID = [myInfo.phone, targetUser.phone].sort().join('_');
+        db.ref('chats/' + chatID).push({ sender: myInfo.phone, text: input.value, time: Date.now() });
         input.value = '';
+    }
+
+    function logout() {
+        localStorage.clear();
+        location.reload();
     }
 </script>
 </body>
