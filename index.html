@@ -1685,123 +1685,130 @@
     }
 
     function loadRecentChats() {
+        const list = document.getElementById('recent-list');
+        // Show cached chats first for instant loading
+        const cachedRecent = JSON.parse(localStorage.getItem('cached_recent_chats_' + my.phone)) || [];
+        if (cachedRecent.length > 0 && list.innerHTML === '') {
+            renderRecentChats(cachedRecent);
+        }
+
         const chatsRef = db.ref('chats');
-        chatsRef.off(); // Remove existing listeners to prevent duplicates
-        chatsRef.on('value', async s => {
-            const list = document.getElementById('recent-list');
-            const chatEntries = [];
+        chatsRef.off();
+        
+        // Use once for initial load to avoid multiple heavy renders
+        chatsRef.once('value', async s => {
+            const validChats = await processChatsSnapshot(s);
+            renderRecentChats(validChats);
+            // Cache for next time
+            localStorage.setItem('cached_recent_chats_' + my.phone, JSON.stringify(validChats));
             
-            // 1. Collect all chat data
-            const promises = [];
-            s.forEach(child => {
-                const id = child.key;
-                const parts = id.split('_');
-                
-                // Secure check: only process chats where the user's phone is exactly one of the participants
-                if (parts.length === 2 && (parts[0] === my.phone || parts[1] === my.phone)) {
-                    const pNum = parts[0] === my.phone ? parts[1] : parts[0];
+            // Then listen for changes to keep it updated without full re-scan if possible
+            // For now, we'll keep it simple but faster
+            chatsRef.on('child_changed', async () => {
+                // Throttle re-loads if many messages arrive
+                if (window.recentChatTimeout) clearTimeout(window.recentChatTimeout);
+                window.recentChatTimeout = setTimeout(async () => {
+                    const snap = await chatsRef.once('value');
+                    const updated = await processChatsSnapshot(snap);
+                    renderRecentChats(updated);
+                    localStorage.setItem('cached_recent_chats_' + my.phone, JSON.stringify(updated));
+                }, 2000);
+            });
+        });
+    }
+
+    async function processChatsSnapshot(s) {
+        const promises = [];
+        s.forEach(child => {
+            const id = child.key;
+            const parts = id.split('_');
+            if (parts.length === 2 && (parts[0] === my.phone || parts[1] === my.phone)) {
+                const pNum = parts[0] === my.phone ? parts[1] : parts[0];
+                const promise = db.ref('users/' + pNum).once('value').then(uS => {
+                    const u = uS.val();
+                    const chatData = child.val() || {};
+                    const entries = Object.entries(chatData);
+                    const deletionTime = deletedChats[id] || 0;
                     
-                    const promise = db.ref('users/' + pNum).once('value').then(uS => {
-                        const u = uS.val();
-                        const chatData = child.val() || {};
-                        const entries = Object.entries(chatData);
-                        const deletionTime = deletedChats[id] || 0;
-                        const filteredEntries = entries.filter(entry => {
-                            const m = entry[1];
-                            return (m.timestamp || 0) > deletionTime;
-                        });
-
-                        if (u && filteredEntries.length) {
-                            const lastEntry = filteredEntries[filteredEntries.length - 1];
-                            return {
-                                id,
-                                pNum,
-                                user: u,
-                                last: lastEntry[1],
-                                lastKey: lastEntry[0],
-                                count: filteredEntries.length,
-                                timestamp: lastEntry[1].timestamp || 0
-                            };
-                        }
-                        return null;
-                    });
-                    promises.push(promise);
-                }
-            });
-
-            // 2. Wait for all user data and filter
-            const results = await Promise.all(promises);
-            const validChats = results.filter(r => r !== null);
-
-            // 3. Sort by timestamp (newest first)
-            validChats.sort((a, b) => b.timestamp - a.timestamp);
-
-            // 4. Render all at once
-            list.innerHTML = '';
-            validChats.forEach(chat => {
-                const { id, pNum, user, last, lastKey, count } = chat;
-                const displayName = getDisplayName(pNum, user.name);
-                const row = document.createElement('div');
-                row.className = 'user-row';
-
-                const info = document.createElement('div');
-                info.className = 'user-info';
-                info.addEventListener('click', () => openChat({ ...user, phone: pNum, name: displayName }));
-
-                const avatar = document.createElement('img');
-                avatar.src = user.img;
-                avatar.className = 'profile-avatar-clickable';
-                avatar.addEventListener('click', e => {
-                    e.stopPropagation();
-                    openImageViewer(user.img, displayName || 'صورة الملف الشخصي');
-                });
-
-                const meta = document.createElement('div');
-                meta.style.flex = '1';
-                const nameEl = document.createElement('b');
-                nameEl.textContent = displayName;
-                const lastEl = document.createElement('small');
-                lastEl.textContent = last.t ? last.t : last.img ? 'صورة' : last.audio ? 'رسالة صوتية' : 'رسالة جديدة';
-                meta.append(nameEl, document.createElement('br'), lastEl);
-
-                const deleteBtn = document.createElement('div');
-                deleteBtn.className = 'delete-btn delete-chat-btn';
-                deleteBtn.innerHTML = `
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 7H18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M8 7V18C8 18.5304 8.21071 19.0391 8.58579 19.4142C8.96086 19.7893 9.46957 20 10 20H14C14.5304 20 15.0391 19.7893 15.4142 19.4142C15.7893 19.0391 16 18.5304 16 18V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M10 11V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 11V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 7V4H15V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                `;
-                deleteBtn.addEventListener('click', e => {
-                    e.stopPropagation();
-                    hideChat(id);
-                });
-
-                const isUnread = last.u !== my.phone && count > getChatSeenCount(id);
-                if (isUnread) {
-                    const badge = document.createElement('span');
-                    badge.className = 'unread-pill';
-                    row.appendChild(badge);
-                }
-
-                if (lastKey) {
-                    const currentChatId = peer ? [my.phone, peer.phone].sort().join('_') : null;
-                    if (last.u !== my.phone && id !== currentChatId && lastNotifiedMessageKeys[id] && lastKey !== lastNotifiedMessageKeys[id]) {
-                        const preview = last.t ? last.t : last.img ? 'صورة جديدة' : last.audio ? 'رسالة صوتية جديدة' : 'رسالة جديدة';
-                        showDesktopNotification('رسالة جديدة من ' + displayName, preview, user.img);
+                    // Only take the last message to save memory
+                    const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null;
+                    if (u && lastEntry && (lastEntry[1].timestamp || 0) > deletionTime) {
+                        return {
+                            id, pNum,
+                            user: { phone: pNum, name: u.name, img: u.img, status: u.status },
+                            last: { t: lastEntry[1].t, img: !!lastEntry[1].img, audio: !!lastEntry[1].audio, u: lastEntry[1].u, timestamp: lastEntry[1].timestamp },
+                            lastKey: lastEntry[0],
+                            count: entries.length,
+                            timestamp: lastEntry[1].timestamp || 0
+                        };
                     }
-                    lastNotifiedMessageKeys[id] = lastKey;
-                }
+                    return null;
+                });
+                promises.push(promise);
+            }
+        });
+        const results = await Promise.all(promises);
+        return results.filter(r => r !== null).sort((a, b) => b.timestamp - a.timestamp);
+    }
 
-                info.appendChild(avatar);
-                info.appendChild(meta);
-                row.appendChild(info);
-                row.appendChild(deleteBtn);
-                list.appendChild(row);
-            });
+    function renderRecentChats(validChats) {
+        const list = document.getElementById('recent-list');
+        if (!list) return;
+        list.innerHTML = '';
+        validChats.forEach(chat => {
+            const { id, pNum, user, last, lastKey, count } = chat;
+            const displayName = getDisplayName(pNum, user.name);
+            const row = document.createElement('div');
+            row.className = 'user-row';
+
+            const info = document.createElement('div');
+            info.className = 'user-info';
+            info.onclick = () => openChat({ ...user, phone: pNum, name: displayName });
+
+            const avatar = document.createElement('img');
+            avatar.src = user.img || 'https://b.top4top.io/p_3771kqoax0.png';
+            avatar.className = 'profile-avatar-clickable';
+            avatar.onclick = e => {
+                e.stopPropagation();
+                openImageViewer(avatar.src, displayName);
+            };
+
+            const meta = document.createElement('div');
+            meta.style.flex = '1';
+            const nameEl = document.createElement('b');
+            nameEl.textContent = displayName;
+            const lastEl = document.createElement('small');
+            lastEl.textContent = last.t ? last.t : last.img ? 'صورة' : last.audio ? 'رسالة صوتية' : 'رسالة جديدة';
+            meta.append(nameEl, document.createElement('br'), lastEl);
+
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'delete-btn delete-chat-btn';
+            deleteBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 7H18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 7V18C8 18.5304 8.21071 19.0391 8.58579 19.4142C8.96086 19.7893 9.46957 20 10 20H14C14.5304 20 15.0391 19.7893 15.4142 19.4142C15.7893 19.0391 16 18.5304 16 18V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 11V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 11V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 7V4H15V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+            deleteBtn.onclick = e => {
+                e.stopPropagation();
+                hideChat(id);
+            };
+
+            const isUnread = last.u !== my.phone && count > getChatSeenCount(id);
+            if (isUnread) {
+                const badge = document.createElement('span');
+                badge.className = 'unread-pill';
+                row.appendChild(badge);
+            }
+
+            info.appendChild(avatar);
+            info.appendChild(meta);
+            row.appendChild(info);
+            row.appendChild(deleteBtn);
+            list.appendChild(row);
         });
     }
 
@@ -1834,20 +1841,22 @@
 
         const deletionTime = deletedChats[id] || 0;
 
-        db.ref('chats/' + id).on('value', s => {
+        // Optimize: Only listen to the last 50 messages to speed up opening
+        const chatQuery = db.ref('chats/' + id).orderByChild('timestamp').startAt(deletionTime + 1).limitToLast(50);
+        
+        chatQuery.on('value', s => {
             const box = document.getElementById('c-msgs');
             box.innerHTML = '';
             const allMsgs = [];
             
             s.forEach(mS => {
                 const m = mS.val();
-                if ((m.timestamp || 0) > deletionTime) {
-                    allMsgs.push(m);
-                    const msgKey = mS.key;
-                    const isMe = m.u === my.phone;
-                    const time = m.ts || '';
-                    const isRead = isMe && m.r === true;
-                    const timeClass = isRead ? 'bubble-time read' : 'bubble-time';
+                allMsgs.push(m);
+                const msgKey = mS.key;
+                const isMe = m.u === my.phone;
+                const time = m.ts || '';
+                const isRead = isMe && m.r === true;
+                const timeClass = isRead ? 'bubble-time read' : 'bubble-time';
                     
                     let contentHTML = '';
                     if (m.img) {
@@ -2738,6 +2747,13 @@
         if (!peer) return;
         const id = [my.phone, peer.phone].sort().join('_');
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        
+        // Optimize: check size before sending (Firebase has limits)
+        if (audioUrl.length > 500000) { // Approx 500KB
+            showConfirm('حجم كبير', 'التسجيل الصوتي طويل جداً، يرجى اختصاره.', true);
+            return;
+        }
+
         const message = { u: my.phone, audio: audioUrl, ts: time, r: false, timestamp: Date.now() };
         const newRef = db.ref('chats/' + id).push();
         message.key = newRef.key;
