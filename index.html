@@ -823,6 +823,21 @@
     </div>
 </div>
 
+<div id="add-contact-modal" class="confirm-overlay" style="position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 9999; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);">
+    <div class="confirm-box" style="background: white; width: 92%; max-width: 360px; padding: 28px; border-radius: 28px; text-align: center; animation: pop 0.25s ease;">
+        <div style="width: 64px; height: 64px; background: rgba(37, 211, 102, 0.1); color: var(--app-theme); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; font-size: 28px;">👤</div>
+        <h3 style="margin: 0 0 8px; font-size: 20px; font-weight: 900;">إضافة جهة اتصال</h3>
+        <p style="font-size: 14px; color: #6b7280; margin: 0 0 20px;">قم بتعيين اسم لهذا الرقم ليظهر في قائمة محادثاتك.</p>
+        
+        <input type="text" id="ac-modal-name" placeholder="اسم جهة الاتصال" style="width: 100%; padding: 14px 18px; border-radius: 16px; border: 1px solid var(--border); outline: none; font-size: 15px; margin-bottom: 20px; text-align: center; background: #f9fafb;">
+        
+        <div class="confirm-btns">
+            <button id="ac-modal-save" style="flex: 1; padding: 14px; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; background: var(--app-theme); color: white;">حفظ الاسم</button>
+            <button id="ac-modal-cancel" style="flex: 1; padding: 14px; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; background: #f3f4f6; color: var(--text);">إلغاء</button>
+        </div>
+    </div>
+</div>
+
 <div id="profile-screen">
     <div class="profile-box">
         <div class="profile-top">
@@ -1402,10 +1417,17 @@
         const currentPhone = peer.phone;
         const currentName = getDisplayName(currentPhone, currentPhone);
         
-        const contactName = prompt("أدخل اسم جهة الاتصال لحفظها (اتركه فارغاً لعرض الرقم):", (currentName === currentPhone ? "" : currentName));
+        const modal = document.getElementById('add-contact-modal');
+        const input = document.getElementById('ac-modal-name');
+        const saveBtn = document.getElementById('ac-modal-save');
+        const cancelBtn = document.getElementById('ac-modal-cancel');
         
-        if (contactName !== null) {
-            const finalName = contactName.trim();
+        input.value = (currentName === currentPhone ? "" : currentName);
+        modal.style.display = 'flex';
+        input.focus();
+
+        saveBtn.onclick = () => {
+            const finalName = input.value.trim();
             const existingIndex = myFriends.findIndex(c => c.phone === currentPhone);
             
             if (existingIndex === -1) {
@@ -1425,10 +1447,15 @@
             
             loadMyContacts();
             loadRecentChats();
+            modal.style.display = 'none';
             if (finalName) {
                 showConfirm('تمت الإضافة', 'تم حفظ ' + finalName + ' في جهات اتصالك.', false);
             }
-        }
+        };
+
+        cancelBtn.onclick = () => {
+            modal.style.display = 'none';
+        };
     }
 
     function addNewContact() {
@@ -1615,10 +1642,19 @@
     }
 
     async function removeContact(phone, name) {
-        if (await showConfirm('حذف جهة الاتصال؟', 'هل تريد إزالة ' + name + ' من قائمتك؟')) {
+        if (await showConfirm('حذف جهة الاتصال؟', 'هل تريد إزالة ' + name + ' من قائمتك؟ سيتم أيضاً إخفاء المحادثة المرتبطة بها.')) {
+            // 1. Remove from friends list
             myFriends = myFriends.filter(c => c.phone !== phone);
             localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
+            
+            // 2. Hide associated chat locally
+            const chatId = [my.phone, phone].sort().join('_');
+            deletedChats[chatId] = Date.now();
+            localStorage.setItem('deleted_chats_v2', JSON.stringify(deletedChats));
+            
+            // 3. Update UI
             loadMyContacts();
+            loadRecentChats();
         }
     }
 
