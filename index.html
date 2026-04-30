@@ -205,17 +205,25 @@
         .call-card {
             width: min(560px, 100%);
             background: #ffffff;
-            border-radius: 28px;
+            border-radius: 32px;
             padding: 24px;
             box-shadow: 0 24px 90px rgba(15, 23, 42, 0.22);
             display: grid;
-            gap: 18px;
+            gap: 20px;
+            position: relative;
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
         .call-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 15px;
         }
         .call-header h3 {
             margin: 0;
@@ -1829,15 +1837,36 @@
             showConfirm('يوجد مكالمة سارية', 'أنهِ المكالمة الحالية أولاً ثم جرب مرة أخرى.', true);
             return;
         }
+
+        // Check for Secure Context (Required for WebRTC in many WebViews)
+        if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+            showConfirm('بروتوكول غير آمن', 'يجب استخدام HTTPS لتشغيل المكالمات. إذا كنت تستخدم AppCreator24، تأكد من تفعيل HTTPS في إعدادات الرابط.', true);
+            return;
+        }
+
         callType = type;
         isCaller = true;
         callId = [my.phone, peer.phone].sort().join('_');
-        watchCallSession(callId);
-        await startLocalStream({ audio: true, video: type === 'video' });
-        createCallConnection();
+        
+        setCallStatus('جارٍ طلب الأذونات...');
+        showCallOverlay('calling');
+
         try {
-            const offer = await callConnection.createOffer();
+            await startLocalStream({ audio: true, video: type === 'video' });
+            if (!callLocalStream) {
+                hideCallOverlay();
+                return;
+            }
+
+            createCallConnection();
+            watchCallSession(callId);
+
+            const offer = await callConnection.createOffer({
+                offerToReceiveAudio: true,
+                offerToReceiveVideo: type === 'video'
+            });
             await callConnection.setLocalDescription(offer);
+
             const displayName = getDisplayName(peer.phone, peer.name);
             const payload = {
                 caller: my.phone,
@@ -1849,6 +1878,7 @@
                 callerImg: my.img || '',
                 createdAt: Date.now()
             };
+
             await callRef.set(payload);
             await db.ref('incoming_calls/' + peer.phone + '/' + callId).set({
                 chatId: callId,
@@ -1859,12 +1889,12 @@
                 callerImg: my.img || '',
                 offer: offer.toJSON()
             });
-            showCallOverlay('calling');
-            setCallStatus('جارٍ الاتصال...');
+
+            setCallStatus('جارٍ الرنين...');
         } catch (error) {
             console.error('خطأ بدء المكالمة:', error);
             cleanupCall();
-            showConfirm('فشل المكالمة', 'لم نتمكن من بدء المكالمة. حاول مرة أخرى.', true);
+            showConfirm('فشل المكالمة', 'حدث خطأ أثناء بدء المكالمة: ' + error.message, true);
         }
     }
 
@@ -1875,22 +1905,34 @@
         callId = incoming.callId;
         callType = incoming.type;
         isCaller = false;
-        watchCallSession(callId);
-        await startLocalStream({ audio: true, video: callType === 'video' });
-        createCallConnection();
+        
+        setCallStatus('جارٍ الاتصال...');
+        showCallOverlay('connected');
+
         try {
+            const success = await startLocalStream({ audio: true, video: callType === 'video' });
+            if (!success) {
+                rejectIncomingCall();
+                return;
+            }
+
+            createCallConnection();
+            watchCallSession(callId);
+
             const remoteDesc = new RTCSessionDescription(incoming.offer);
             await callConnection.setRemoteDescription(remoteDesc);
+            
             const answer = await callConnection.createAnswer();
             await callConnection.setLocalDescription(answer);
+            
             await callRef.update({ answer: answer.toJSON(), status: 'in-call' });
             await db.ref('incoming_calls/' + my.phone + '/' + callId).remove();
-            showCallOverlay('connected');
+            
             setCallStatus('متصل الآن');
         } catch (error) {
             console.error('خطأ قبول المكالمة:', error);
             cleanupCall();
-            showConfirm('فشل القبول', 'لم نتمكن من قبول المكالمة.', true);
+            showConfirm('فشل القبول', 'حدث خطأ أثناء قبول المكالمة: ' + error.message, true);
         }
     }
 
@@ -1908,35 +1950,58 @@
 
     function createCallConnection() {
         if (callConnection) return;
-        callConnection = new RTCPeerConnection({
+        
+        // Use more robust ICE servers for mobile/WebView
+        const config = {
             iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' }
-            ]
-        });
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
+            ],
+            iceCandidatePoolSize: 10
+        };
+        
+        callConnection = new RTCPeerConnection(config);
+        
         if (callLocalStream) {
-            callLocalStream.getTracks().forEach(track => callConnection.addTrack(track, callLocalStream));
+            callLocalStream.getTracks().forEach(track => {
+                callConnection.addTrack(track, callLocalStream);
+            });
         }
+        
         callConnection.ontrack = event => {
+            console.log('Remote track received:', event.streams[0]);
             callRemoteStream = event.streams[0];
             attachRemoteStream();
         };
+
         callConnection.onicecandidate = event => {
             if (event.candidate && callRef) {
                 const branch = isCaller ? 'caller' : 'callee';
                 callRef.child('candidates/' + branch).push(event.candidate.toJSON());
             }
         };
-        callConnection.onconnectionstatechange = () => {
-            if (callConnection.connectionState === 'connected') {
-                updateCallStatus('متصل الآن');
+
+        callConnection.oniceconnectionstatechange = () => {
+            console.log('ICE Connection State:', callConnection.iceConnectionState);
+            if (callConnection.iceConnectionState === 'connected') {
+                setCallStatus('متصل الآن');
                 showCallOverlay('connected');
             }
-            if (['disconnected', 'failed', 'closed'].includes(callConnection.connectionState)) {
-                cleanupCall();
+            if (['failed', 'disconnected', 'closed'].includes(callConnection.iceConnectionState)) {
+                if (callConnection.iceConnectionState === 'failed') {
+                    console.warn('ICE Connection failed - might be a firewall/network issue');
+                }
+                // Don't cleanup immediately on disconnected, might reconnect
+                if (callConnection.iceConnectionState === 'closed' || callConnection.iceConnectionState === 'failed') {
+                    cleanupCall();
+                }
             }
         };
-        callConnection.oniceconnectionstatechange = () => {
-            if (['failed', 'disconnected', 'closed'].includes(callConnection.iceConnectionState)) {
+
+        callConnection.onconnectionstatechange = () => {
+            console.log('Connection State:', callConnection.connectionState);
+            if (['failed', 'closed'].includes(callConnection.connectionState)) {
                 cleanupCall();
             }
         };
@@ -1944,27 +2009,38 @@
 
     async function startLocalStream(constraints) {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showConfirm('التسجيل غير مدعوم', 'متصفحك لا يدعم الوصول إلى الميكروفون أو الكاميرا.', false);
+            showConfirm('المكالمات غير مدعومة', 'متصفحك لا يدعم الوصول إلى الميكروفون أو الكاميرا بشكل حديث. تأكد من تحديث التطبيق.', true);
             return;
         }
         try {
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            // Stop any existing stream before starting a new one
             stopStream(callLocalStream);
+            
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
             callLocalStream = stream;
+            
             const localVideo = document.getElementById('local-video');
             const localAudioPreview = document.getElementById('local-audio-preview');
+            
             if (constraints.video) {
                 localVideo.srcObject = stream;
                 localVideo.style.display = 'block';
                 localAudioPreview.style.display = 'none';
+                localVideo.muted = true; // Local preview should always be muted
             } else {
                 localVideo.srcObject = null;
                 localVideo.style.display = 'none';
                 localAudioPreview.style.display = 'block';
             }
+            return true;
         } catch (error) {
-            console.error('خطأ فتح الميكروفون/الكاميرا:', error);
-            showConfirm('فشل الوصول', 'يرجى السماح بالوصول إلى الميكروفون والكاميرا.', true);
+            console.error('Local stream error:', error);
+            let errorMsg = 'يرجى السماح بالوصول إلى الميكروفون والكاميرا للمتابعة.';
+            if (error.name === 'NotAllowedError') errorMsg = 'تم رفض الإذن. يرجى تفعيله من إعدادات الهاتف.';
+            if (error.name === 'NotFoundError') errorMsg = 'لم يتم العثور على ميكروفون أو كاميرا.';
+            
+            showConfirm('فشل الوصول', errorMsg, true);
+            return false;
         }
     }
 
@@ -1973,14 +2049,18 @@
         const remoteVideo = document.getElementById('remote-video');
         const remoteAudio = document.getElementById('remote-audio');
         const remotePlaceholder = document.getElementById('remote-placeholder');
+        
         if (callType === 'video') {
             remoteVideo.srcObject = callRemoteStream;
             remoteVideo.style.display = 'block';
             remoteAudio.style.display = 'none';
+            // Important: ensure video plays (especially on mobile)
+            remoteVideo.play().catch(e => console.warn('Video play error:', e));
         } else {
             remoteAudio.srcObject = callRemoteStream;
             remoteVideo.style.display = 'none';
             remoteAudio.style.display = 'block';
+            remoteAudio.play().catch(e => console.warn('Audio play error:', e));
         }
         remotePlaceholder.style.display = 'none';
     }
