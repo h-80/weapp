@@ -998,11 +998,11 @@
             <button type="button" class="call-end-button" onclick="endCall()">×</button>
         </div>
         <div class="call-media">
-            <video id="remote-video" autoplay playsinline></video>
-            <audio id="remote-audio" autoplay></audio>
+            <video id="remote-video" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover; background: #000; display: none;"></video>
+            <audio id="remote-audio" autoplay style="display: none;"></audio>
             <div id="remote-placeholder" class="remote-placeholder">جارٍ الاتصال...</div>
             <div id="local-preview" class="call-local-preview">
-                <video id="local-video" autoplay muted playsinline></video>
+                <video id="local-video" autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover; display: none;"></video>
                 <div id="local-audio-preview" class="local-audio-preview">🎙️</div>
             </div>
         </div>
@@ -2080,17 +2080,30 @@
     function createCallConnection() {
         if (callConnection) return;
         
-        // Use more robust ICE servers for mobile/WebView
+        // Comprehensive ICE servers list for better mobile connectivity (4G/5G/WiFi)
         const config = {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
                 { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' }
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:stun3.l.google.com:19302' },
+                { urls: 'stun:stun4.l.google.com:19302' },
+                { urls: 'stun:stun.services.mozilla.com' },
+                { urls: 'stun:stun.stunprotocol.org:3478' }
             ],
-            iceCandidatePoolSize: 10
+            iceCandidatePoolSize: 10,
+            bundlePolicy: 'max-bundle',
+            rtcpMuxPolicy: 'require'
         };
         
-        callConnection = new RTCPeerConnection(config);
+        try {
+            callConnection = new RTCPeerConnection(config);
+            console.log('RTCPeerConnection created successfully');
+        } catch (e) {
+            console.error('Failed to create RTCPeerConnection:', e);
+            showConfirm('خطأ في النظام', 'جهازك لا يدعم تقنية الاتصال المباشر (WebRTC).', true);
+            return;
+        }
         
         if (callLocalStream) {
             callLocalStream.getTracks().forEach(track => {
@@ -2142,15 +2155,30 @@
     }
 
     async function startLocalStream(constraints) {
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showConfirm('المكالمات غير مدعومة', 'متصفحك لا يدعم الوصول إلى الميكروفون أو الكاميرا بشكل حديث. تأكد من تحديث التطبيق.', true);
-            return;
+        // Advanced check for AppCreator24 / Android WebView
+        const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        const hasLegacyMedia = !!(navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia);
+        
+        if (!hasMediaDevices && !hasLegacyMedia) {
+            showConfirm('المكالمات غير مدعومة', 'متصفحك لا يدعم الوصول إلى الميكروفون أو الكاميرا. إذا كنت تستخدم AppCreator24، تأكد من تفعيل أذونات الكاميرا والميكروفون في إعدادات التطبيق.', true);
+            return false;
         }
+
         try {
-            // Stop any existing stream before starting a new one
             stopStream(callLocalStream);
             
-            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            // Optimized constraints for Mobile WebViews
+            const finalConstraints = {
+                audio: constraints.audio || true,
+                video: constraints.video ? {
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: "user"
+                } : false
+            };
+            
+            console.log('Requesting media with constraints:', finalConstraints);
+            const stream = await navigator.mediaDevices.getUserMedia(finalConstraints);
             callLocalStream = stream;
             
             const localVideo = document.getElementById('local-video');
@@ -2158,9 +2186,13 @@
             
             if (constraints.video) {
                 localVideo.srcObject = stream;
+                localVideo.setAttribute('autoplay', '');
+                localVideo.setAttribute('muted', '');
+                localVideo.setAttribute('playsinline', '');
                 localVideo.style.display = 'block';
                 localAudioPreview.style.display = 'none';
-                localVideo.muted = true; // Local preview should always be muted
+                localVideo.muted = true;
+                localVideo.play().catch(e => console.warn('Local video play failed:', e));
             } else {
                 localVideo.srcObject = null;
                 localVideo.style.display = 'none';
@@ -2168,10 +2200,15 @@
             }
             return true;
         } catch (error) {
-            console.error('Local stream error:', error);
+            console.error('Detailed Media Error:', error);
             let errorMsg = 'يرجى السماح بالوصول إلى الميكروفون والكاميرا للمتابعة.';
-            if (error.name === 'NotAllowedError') errorMsg = 'تم رفض الإذن. يرجى تفعيله من إعدادات الهاتف.';
-            if (error.name === 'NotFoundError') errorMsg = 'لم يتم العثور على ميكروفون أو كاميرا.';
+            if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                errorMsg = 'تم رفض الإذن. يرجى تفعيل أذونات الكاميرا والميكروفون من إعدادات الهاتف لمتصفحك أو لتطبيق AppCreator24.';
+            } else if (error.name === 'NotFoundError') {
+                errorMsg = 'لم يتم العثور على ميكروفون أو كاميرا في جهازك.';
+            } else if (location.protocol !== 'https:') {
+                errorMsg = 'نظام أندرويد يتطلب استخدام رابط آمن (HTTPS) لتشغيل الكاميرا والميكروفون.';
+            }
             
             showConfirm('فشل الوصول', errorMsg, true);
             return false;
@@ -2186,12 +2223,19 @@
         
         if (callType === 'video') {
             remoteVideo.srcObject = callRemoteStream;
+            remoteVideo.setAttribute('autoplay', '');
+            remoteVideo.setAttribute('playsinline', '');
             remoteVideo.style.display = 'block';
             remoteAudio.style.display = 'none';
             // Important: ensure video plays (especially on mobile)
-            remoteVideo.play().catch(e => console.warn('Video play error:', e));
+            remoteVideo.play().catch(e => {
+                console.warn('Video play error:', e);
+                // Fallback: some browsers need a user gesture to play video even if muted is not set
+                // But for remote video, it's usually allowed after a user click (which happened to start/accept call)
+            });
         } else {
             remoteAudio.srcObject = callRemoteStream;
+            remoteAudio.setAttribute('autoplay', '');
             remoteVideo.style.display = 'none';
             remoteAudio.style.display = 'block';
             remoteAudio.play().catch(e => console.warn('Audio play error:', e));
