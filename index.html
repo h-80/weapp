@@ -11,145 +11,167 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg); height: 100vh; overflow: hidden; }
 
-        /* الهيدر الاحترافي */
-        header { background: var(--wa-dark); color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .my-profile-img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; cursor: pointer; object-fit: cover; }
+        /* شاشة تسجيل الدخول */
+        #login-screen { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 100%; max-width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .pic-uploader { width: 110px; height: 110px; margin: 0 auto 20px; cursor: pointer; position: relative; }
+        .pic-uploader img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--wa-green); }
         
-        /* القائمة والشاشات */
-        .screen { display: none; height: calc(100vh - 64px); overflow-y: auto; background: white; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-size: 16px; outline: none; }
+        .btn-main { width: 100%; padding: 14px; background: var(--wa-green); color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+
+        /* الهيدر */
+        header { background: var(--wa-dark); color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+        .my-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; cursor: pointer; object-fit: cover; }
+
+        /* القوائم */
+        .screen { height: calc(100vh - 64px); overflow-y: auto; background: white; display: none; }
         .active-screen { display: block; }
-        
         .user-row { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .user-row img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-        .user-info { flex: 1; }
-        .user-info b { font-size: 16px; color: #333; }
-        .user-info p { font-size: 13px; color: #777; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        /* زر جهات الاتصال العائم */
-        .fab { position: fixed; bottom: 20px; left: 20px; background: var(--wa-green); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; }
-
-        /* نافذة التعديل (Modal) */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: white; width: 90%; max-width: 350px; padding: 25px; border-radius: 15px; text-align: center; }
         
-        /* واجهة الدردشة */
+        .fab { position: fixed; bottom: 25px; left: 25px; background: var(--wa-green); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; z-index: 100; }
+
+        /* الدردشة */
         .chat-full { position: fixed; inset: 0; background: #e5ddd5; z-index: 2000; display: none; flex-direction: column; }
         .chat-header { background: #ededed; padding: 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #ddd; }
         .msgs { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .bubble { padding: 8px 12px; border-radius: 10px; max-width: 80%; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
         .me { align-self: flex-end; background: #dcf8c6; }
         .them { align-self: flex-start; background: white; }
-        .chat-footer { padding: 10px; background: #f0f0f0; display: flex; gap: 8px; }
-        input[type="text"] { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
+        .footer { padding: 10px; background: #f0f2f5; display: flex; gap: 8px; }
 
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 15px; text-align: center; width: 90%; max-width: 340px; }
+        
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-<header>
-    <img id="my-avatar" class="my-profile-img" onclick="openProfile()">
-    <span style="font-weight: bold; font-size: 18px;">We App</span>
-    <div style="width:40px"></div> </header>
-
-<div id="chats-screen" class="screen active-screen">
-    <div id="recent-chats-list"></div>
-    <div class="fab" onclick="showContacts()">➕</div>
-</div>
-
-<div id="contacts-screen" class="screen">
-    <div style="padding:10px; background:#f9f9f9; font-weight:bold; color:var(--wa-dark)">
-        <span onclick="hideContacts()" style="cursor:pointer">⬅ رجوع</span> | جهات الاتصال
+<div id="login-screen" class="hidden">
+    <div class="login-card">
+        <div class="pic-uploader" onclick="document.getElementById('file-in').click()">
+            <img id="login-preview" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+        </div>
+        <input type="file" id="file-in" class="hidden" accept="image/*" onchange="previewLogin(this)">
+        <h2>مرحباً بك في We App</h2>
+        <input type="text" id="n-in" placeholder="الاسم">
+        <input type="tel" id="p-in" placeholder="رقم الهاتف">
+        <button class="btn-main" onclick="register()">دخول</button>
     </div>
-    <div id="all-users-list"></div>
 </div>
 
-<div id="profile-modal" class="modal">
-    <div class="modal-content">
-        <h3>تعديل الملف الشخصي</h3>
-        <div style="margin: 15px 0;" onclick="document.getElementById('edit-file').click()">
-            <img id="edit-preview" style="width:100px; height:100px; border-radius:50%; object-fit:cover; border:3px solid var(--wa-green);">
-            <p style="font-size:12px; color:var(--wa-green)">تغيير الصورة</p>
+<div id="app-content">
+    <header>
+        <img id="my-img" class="my-avatar" onclick="openMe()">
+        <b>We App</b>
+        <div style="width:40px"></div>
+    </header>
+
+    <div id="chats-list-screen" class="screen active-screen">
+        <div id="recent-list"></div>
+        <div class="fab" onclick="showContacts()">+</div>
+    </div>
+
+    <div id="contacts-screen" class="screen">
+        <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #ddd; cursor:pointer;" onclick="hideContacts()">⬅ رجوع لدردشاتي</div>
+        <div id="all-list"></div>
+    </div>
+</div>
+
+<div id="me-modal" class="modal">
+    <div class="modal-box">
+        <h3>تعديل الملف</h3>
+        <div style="margin:15px 0;" onclick="document.getElementById('edit-file').click()">
+            <img id="edit-preview" style="width:90px; height:90px; border-radius:50%; object-fit:cover; border:2px solid var(--wa-green)">
         </div>
         <input type="file" id="edit-file" class="hidden" accept="image/*" onchange="previewEdit(this)">
-        <input type="text" id="edit-name" placeholder="الاسم الجديد">
-        <button onclick="saveProfile()" style="width:100%; padding:10px; background:var(--wa-green); color:white; border:none; border-radius:5px; margin-top:10px;">حفظ التغييرات</button>
-        <button onclick="closeProfile()" style="margin-top:10px; background:none; border:none; color:red;">إلغاء</button>
+        <input type="text" id="edit-name">
+        <button class="btn-main" onclick="saveMe()">حفظ</button>
+        <button onclick="closeMe()" style="margin-top:10px; background:none; border:none; color:red;">إلغاء</button>
     </div>
 </div>
 
 <div id="chat-ui" class="chat-full">
     <div class="chat-header">
-        <span onclick="closeChat()" style="cursor:pointer; font-size:20px;">⬅</span>
-        <img id="chat-avatar" style="width:35px; height:35px; border-radius:50%;">
-        <b id="chat-name"></b>
+        <span onclick="closeChat()" style="cursor:pointer; font-size:22px; padding:5px;">⬅</span>
+        <img id="c-avatar" style="width:35px; height:35px; border-radius:50%;">
+        <b id="c-name"></b>
     </div>
-    <div id="chat-msgs" class="msgs"></div>
-    <div class="chat-footer">
-        <input type="text" id="chat-input" placeholder="اكتب رسالة...">
-        <button onclick="sendMessage()" style="padding:10px 20px; background:var(--wa-green); border:none; color:white; border-radius:20px;">إرسال</button>
+    <div id="c-msgs" class="msgs"></div>
+    <div class="footer">
+        <input type="text" id="c-input" placeholder="اكتب رسالة...">
+        <button onclick="send()" style="background:var(--wa-green); border:none; color:white; padding:10px 15px; border-radius:15px;">إرسال</button>
     </div>
 </div>
 
 <script>
-    const config = { databaseURL: "https://weapp-80-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(config);
-    const db = firebase.database();
+    const fb = firebase.initializeApp({ databaseURL: "https://weapp-80-default-rtdb.firebaseio.com" });
+    const db = fb.database();
 
     let me = JSON.parse(localStorage.getItem('we_u')) || null;
     let peer = null;
-    let tempImg = "";
+    let imgStore = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
 
-    if (!me) { window.location.href = "login.html"; } // تأكد من وجود صفحة دخول
-    else { startApp(); }
+    window.onload = () => {
+        if(!me) document.getElementById('login-screen').classList.remove('hidden');
+        else initApp();
+    };
 
-    function startApp() {
-        document.getElementById('my-avatar').src = me.img;
-        loadRecentChats();
+    function previewLogin(i) {
+        if(i.files && i.files[0]) {
+            const r = new FileReader();
+            r.onload = e => { imgStore = e.target.result; document.getElementById('login-preview').src = imgStore; };
+            r.readAsDataURL(i.files[0]);
+        }
     }
 
-    // عرض المحادثات الجارية فقط
-    function loadRecentChats() {
-        db.ref('chats').on('value', snap => {
-            const list = document.getElementById('recent-chats-list');
-            list.innerHTML = '';
-            let hasChats = false;
-            
-            snap.forEach(child => {
-                if (child.key.includes(me.phone)) {
-                    hasChats = true;
-                    const peerPhone = child.key.replace(me.phone, '').replace('_', '');
-                    db.ref('users/' + peerPhone).once('value', uSnap => {
-                        const u = uSnap.val();
-                        if (u) {
-                            const lastMsg = Object.values(child.val()).pop();
-                            const div = document.createElement('div');
-                            div.className = 'user-row';
-                            div.innerHTML = `<img src="${u.img}"> <div class="user-info"><b>${u.name}</b><p>${lastMsg.t}</p></div>`;
-                            div.onclick = () => openChat(u);
-                            list.appendChild(div);
+    async function register() {
+        const n = document.getElementById('n-in').value.trim();
+        const p = document.getElementById('p-in').value.trim();
+        if(!n || !p) return alert("اكمل البيانات");
+        me = { name: n, phone: p, img: imgStore };
+        await db.ref('users/' + p).set(me);
+        localStorage.setItem('we_u', JSON.stringify(me));
+        location.reload();
+    }
+
+    function initApp() {
+        document.getElementById('my-img').src = me.img;
+        loadRecents();
+    }
+
+    function loadRecents() {
+        db.ref('chats').on('value', s => {
+            const list = document.getElementById('recent-list'); list.innerHTML = '';
+            let found = false;
+            s.forEach(child => {
+                if(child.key.includes(me.phone)) {
+                    found = true;
+                    const pNum = child.key.replace(me.phone, '').replace('_', '');
+                    db.ref('users/' + pNum).once('value', uS => {
+                        const u = uS.val();
+                        if(u) {
+                            const last = Object.values(child.val()).pop();
+                            list.innerHTML += `<div class="user-row" onclick='openChat(${JSON.stringify(u)})'><img src="${u.img}"> <div><b>${u.name}</b><br><small style="color:#888">${last.t}</small></div></div>`;
                         }
                     });
                 }
             });
-            if(!hasChats) list.innerHTML = '<p style="text-align:center; margin-top:50px; color:#999;">لا توجد محادثات جارية.<br>اضغط على + لبدء محادثة.</p>';
+            if(!found) list.innerHTML = '<center style="margin-top:50px; color:#aaa">لا توجد محادثات. ابدأ الآن!</center>';
         });
     }
 
     function showContacts() {
         document.getElementById('contacts-screen').classList.add('active-screen');
-        document.getElementById('chats-screen').classList.remove('active-screen');
-        db.ref('users').once('value', snap => {
-            const list = document.getElementById('all-users-list');
-            list.innerHTML = '';
-            snap.forEach(c => {
+        document.getElementById('chats-list-screen').classList.remove('active-screen');
+        db.ref('users').once('value', s => {
+            const l = document.getElementById('all-list'); l.innerHTML = '';
+            s.forEach(c => {
                 const u = c.val();
-                if (u.phone !== me.phone) {
-                    const div = document.createElement('div');
-                    div.className = 'user-row';
-                    div.innerHTML = `<img src="${u.img}"> <div class="user-info"><b>${u.name}</b></div>`;
-                    div.onclick = () => { hideContacts(); openChat(u); };
-                    list.appendChild(div);
+                if(u.phone !== me.phone) {
+                    l.innerHTML += `<div class="user-row" onclick='hideContacts(); openChat(${JSON.stringify(u)})'><img src="${u.img}"> <b>${u.name}</b></div>`;
                 }
             });
         });
@@ -157,76 +179,58 @@
 
     function hideContacts() {
         document.getElementById('contacts-screen').classList.remove('active-screen');
-        document.getElementById('chats-screen').classList.add('active-screen');
+        document.getElementById('chats-list-screen').classList.add('active-screen');
     }
 
-    // نظام الدردشة
     function openChat(u) {
         peer = u;
         document.getElementById('chat-ui').style.display = 'flex';
-        document.getElementById('chat-avatar').src = u.img;
-        document.getElementById('chat-name').innerText = u.name;
+        document.getElementById('c-avatar').src = u.img;
+        document.getElementById('c-name').innerText = u.name;
         const id = [me.phone, peer.phone].sort().join('_');
-        db.ref('chats/' + id).on('value', snap => {
-            const area = document.getElementById('chat-msgs');
-            area.innerHTML = '';
-            snap.forEach(ms => {
-                const m = ms.val();
-                area.innerHTML += `<div class="bubble ${m.u===me.phone?'me':'them'}">${m.t}</div>`;
+        db.ref('chats/' + id).on('value', s => {
+            const a = document.getElementById('c-msgs'); a.innerHTML = '';
+            s.forEach(mS => {
+                const m = mS.val();
+                a.innerHTML += `<div class="bubble ${m.u===me.phone?'me':'them'}">${m.t}</div>`;
             });
-            area.scrollTop = area.scrollHeight;
+            a.scrollTop = a.scrollHeight;
         });
     }
 
-    function sendMessage() {
-        const inp = document.getElementById('chat-input');
-        if (!inp.value.trim() || !peer) return;
+    function send() {
+        const i = document.getElementById('c-input');
+        if(!i.value.trim() || !peer) return;
         const id = [me.phone, peer.phone].sort().join('_');
-        db.ref('chats/' + id).push({ u: me.phone, t: inp.value });
-        inp.value = '';
+        db.ref('chats/' + id).push({ u: me.phone, t: i.value });
+        i.value = '';
     }
 
     function closeChat() { document.getElementById('chat-ui').style.display = 'none'; }
 
-    // تعديل البروفايل
-    function openProfile() {
-        document.getElementById('profile-modal').style.display = 'flex';
+    function openMe() {
+        document.getElementById('me-modal').style.display = 'flex';
         document.getElementById('edit-preview').src = me.img;
         document.getElementById('edit-name').value = me.name;
-        tempImg = me.img;
     }
 
-    function previewEdit(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 150; canvas.height = 150;
-                    canvas.getContext('2d').drawImage(img, 0, 0, 150, 150);
-                    tempImg = canvas.toDataURL('image/jpeg', 0.7);
-                    document.getElementById('edit-preview').src = tempImg;
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(input.files[0]);
+    function previewEdit(i) {
+        if(i.files && i.files[0]) {
+            const r = new FileReader();
+            r.onload = e => { imgStore = e.target.result; document.getElementById('edit-preview').src = imgStore; };
+            r.readAsDataURL(i.files[0]);
         }
     }
 
-    async function saveProfile() {
-        const newName = document.getElementById('edit-name').value.trim();
-        if (!newName) return;
-        me.name = newName;
-        me.img = tempImg;
+    async function saveMe() {
+        me.name = document.getElementById('edit-name').value;
+        me.img = document.getElementById('edit-preview').src;
         await db.ref('users/' + me.phone).set(me);
         localStorage.setItem('we_u', JSON.stringify(me));
-        document.getElementById('my-avatar').src = me.img;
-        closeProfile();
-        alert("تم تحديث ملفك الشخصي بنجاح");
+        location.reload();
     }
 
-    function closeProfile() { document.getElementById('profile-modal').style.display = 'none'; }
+    function closeMe() { document.getElementById('me-modal').style.display = 'none'; }
 </script>
 </body>
 </html>
