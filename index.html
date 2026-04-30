@@ -15,7 +15,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg); height: 100vh; overflow: hidden; }
 
-        /* الهيدر المحدث بالشعار الجديد */
+        /* الهيدر مع تكبير الشعار */
         header { 
             background: var(--wa-header); 
             color: white; 
@@ -23,25 +23,25 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            height: 60px;
+            height: 70px; /* زدنا ارتفاع الهيدر قليلاً ليتناسب مع الشعار الأكبر */
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
-        .header-brand { display: flex; align-items: center; gap: 10px; }
-        .header-logo-img { height: 40px; width: auto; object-fit: contain; }
-        .app-name { font-weight: bold; font-size: 19px; color: white; }
+        .header-brand { display: flex; align-items: center; gap: 12px; }
+        .header-logo-img { height: 50px; width: auto; object-fit: contain; } /* تم التكبير هنا */
+        .app-name { font-weight: bold; font-size: 22px; color: white; }
         .h-avatar { 
-            width: 40px; height: 40px; border-radius: 50%; 
+            width: 45px; height: 45px; border-radius: 50%; 
             border: 2px solid white; cursor: pointer; object-fit: cover; 
         }
 
-        /* شاشة الدخول */
+        /* شاشة الدخول مع تكبير الشعار الرئيسي */
         #login-screen { 
             position: fixed; inset: 0; background: white; z-index: 6000; 
             display: flex; align-items: center; justify-content: center; padding: 20px; 
         }
-        .login-main-logo { width: 170px; margin-bottom: 25px; }
+        .login-main-logo { width: 220px; margin-bottom: 30px; } /* تم التكبير هنا */
 
-        .screen { height: calc(100vh - 60px); overflow-y: auto; background: white; position: relative; }
+        .screen { height: calc(100vh - 70px); overflow-y: auto; background: white; position: relative; }
         .user-row { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .user-row img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
         
@@ -65,7 +65,6 @@
         .btn-action { width: 100%; padding: 12px; background: var(--wa-green); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         .btn-out { width: 100%; padding: 10px; background: #ff4b4b; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-        /* واجهة الدردشة */
         .chat-full { position: fixed; inset: 0; background: #e5ddd5; z-index: 2000; display: none; flex-direction: column; }
         .chat-header { background: #ededed; padding: 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #ddd; }
         .msgs { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
