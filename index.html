@@ -1043,7 +1043,19 @@
     let deletedChats = JSON.parse(localStorage.getItem('deleted_chats_v2')) || {};
     let chatSeenCounts = JSON.parse(localStorage.getItem('chat_seen_counts')) || {};
     let lastNotifiedMessageKeys = {};
-    let myFriends = JSON.parse(localStorage.getItem('my_friends_list')) || [];
+    let myFriends = [];
+    try {
+        const storedFriends = localStorage.getItem('my_friends_list');
+        if (storedFriends) {
+            myFriends = JSON.parse(storedFriends);
+            if (!Array.isArray(myFriends)) myFriends = [];
+        }
+    } catch (e) {
+        console.error("Friends list parsing error:", e);
+        myFriends = [];
+    }
+    
+    // Migration for old format (string array)
     if (myFriends.length && typeof myFriends[0] === 'string') {
         myFriends = myFriends.map(phone => ({ phone, name: phone }));
         localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
@@ -1436,7 +1448,11 @@
                 myFriends[existingIndex].name = finalName;
             }
             
-            localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
+            try {
+                localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
+            } catch (e) {
+                console.error("Save error:", e);
+            }
             
             // Update UI
             const displayName = finalName || currentPhone;
@@ -1476,20 +1492,34 @@
         const cleanPhone = phone.replace(/[^\d+]/g, '');
         const btn = document.querySelector('.contact-form .btn-add');
         const originalText = btn.innerText;
+        
+        if (!db) {
+            showConfirm('خطأ اتصال', 'قاعدة البيانات غير متصلة. تأكد من الإنترنت.', true);
+            return;
+        }
+
         btn.innerText = 'جارٍ التحقق...';
         btn.disabled = true;
 
+        // Use a timeout to reset the button if Firebase takes too long
+        const timeout = setTimeout(() => {
+            if (btn.disabled) {
+                btn.innerText = originalText;
+                btn.disabled = false;
+                showConfirm('تأخر الرد', 'قاعدة البيانات تستغرق وقتاً طويلاً. تأكد من اتصال الإنترنت وحاول ثانية.', true);
+            }
+        }, 8000);
+
         db.ref('users/' + cleanPhone).once('value', s => {
+            clearTimeout(timeout);
             btn.innerText = originalText;
             btn.disabled = false;
 
             if (s.exists()) {
                 const existingIndex = myFriends.findIndex(c => c.phone === cleanPhone);
                 if (existingIndex === -1) {
-                    // New contact
                     myFriends.push({ phone: cleanPhone, name: contactName });
                 } else {
-                    // Update existing contact name if it's already there
                     myFriends[existingIndex].name = contactName;
                 }
                 
@@ -1501,13 +1531,14 @@
                 nameInput.value = '';
                 phoneInput.value = '';
             } else {
-                showConfirm('غير مشترك', 'هذا الرقم لا يستخدم We App حالياً. يمكنك دعوته لاستخدام التطبيق!', true);
+                showConfirm('غير مشترك', 'هذا الرقم لا يستخدم We App حالياً.', true);
             }
         }).catch(err => {
+            clearTimeout(timeout);
             btn.innerText = originalText;
             btn.disabled = false;
             console.error("Add contact error:", err);
-            showConfirm('خطأ', 'حدث خطأ أثناء الإضافة. تأكد من اتصال الإنترنت.', true);
+            showConfirm('خطأ', 'فشل التحقق من الرقم. تأكد من اتصال الإنترنت.', true);
         });
     }
 
@@ -1535,7 +1566,11 @@
         }
 
         // Sort friends alphabetically by name
-        const sortedFriends = [...myFriends].sort((a, b) => a.name.localeCompare(b.name));
+        const sortedFriends = [...myFriends].sort((a, b) => {
+            const nameA = (a.name || a.phone || "").toString();
+            const nameB = (b.name || b.phone || "").toString();
+            return nameA.localeCompare(nameB);
+        });
 
         sortedFriends.forEach(contact => {
             const row = document.createElement('div');
