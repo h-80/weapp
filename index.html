@@ -516,51 +516,62 @@
             z-index: 10000;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             padding: 20px;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
         .image-viewer.show {
             display: flex;
+            opacity: 1;
         }
         .image-viewer-content {
             position: relative;
-            max-width: min(940px, 100%);
-            width: 100%;
-            max-height: 90vh;
+            max-width: 100%;
+            max-height: 100%;
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            align-items: center;
-        }
-        .image-viewer-content img {
-            width: 100%;
-            max-height: 84vh;
-            border-radius: 24px;
-            object-fit: contain;
-            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.36);
-        }
-        .image-viewer-caption {
-            color: #f8fafc;
-            font-size: 15px;
-            text-align: center;
-            word-break: break-word;
-            max-width: 100%;
-        }
-        .image-viewer-close {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            border: none;
-            background: rgba(255, 255, 255, 0.18);
-            color: #fff;
-            font-size: 24px;
-            cursor: pointer;
-            display: inline-flex;
             align-items: center;
             justify-content: center;
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .image-viewer.show .image-viewer-content {
+            transform: scale(1);
+        }
+        .image-viewer-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 12px;
+            object-fit: contain;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .image-viewer-caption {
+            margin-top: 15px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+        .image-viewer-close {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            border: none;
+            z-index: 10001;
         }
         @keyframes pulse {
             0%, 100% { box-shadow: 0 12px 24px rgba(239, 68, 68, 0.24), 0 0 0 0 rgba(239, 68, 68, 0); }
@@ -1307,7 +1318,11 @@
         if (!my) {
             my = { img: document.getElementById('header-img').src || 'https://c.top4top.io/p_3771lv9ra1.png', name: '' };
         }
-        document.getElementById('profile-img-preview').src = my.img || '';
+        const imgPreview = document.getElementById('profile-img-preview');
+        imgPreview.src = my.img || '';
+        imgPreview.style.cursor = 'pointer';
+        imgPreview.onclick = () => openImageViewer(imgPreview.src, my.name || 'صورة الملف الشخصي');
+        
         const nameInput = document.getElementById('profile-name-input');
         nameInput.value = my.name || '';
         nameInput.readOnly = true;
@@ -1527,9 +1542,11 @@
             const promises = [];
             s.forEach(child => {
                 const id = child.key;
-                if (id.includes(my.phone)) {
-                    const parts = id.split('_');
-                    const pNum = parts.length === 2 ? (parts[0] === my.phone ? parts[1] : parts[0]) : id.replace(my.phone, '').replace('_', '');
+                const parts = id.split('_');
+                
+                // Secure check: only process chats where the user's phone is exactly one of the participants
+                if (parts.length === 2 && (parts[0] === my.phone || parts[1] === my.phone)) {
+                    const pNum = parts[0] === my.phone ? parts[1] : parts[0];
                     
                     const promise = db.ref('users/' + pNum).once('value').then(uS => {
                         const u = uS.val();
@@ -1703,8 +1720,20 @@
                     bubbleEl.innerHTML = contentHTML + metaHTML;
 
                     // Add Listeners
+                    if (m.img) {
+                        const imgEl = bubbleEl.querySelector('.chat-image');
+                        if (imgEl) {
+                            imgEl.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                openImageViewer(m.img, 'صورة المحادثة');
+                            });
+                        }
+                    }
+
                     if (isMe) {
-                        const deleteListener = async () => {
+                        const deleteListener = async (e) => {
+                            if (e && e.preventDefault) e.preventDefault();
+                            if (e && e.stopPropagation) e.stopPropagation();
                             const confirmed = await showConfirm('حذف الرسالة؟', 'هل تريد حذف هذه الرسالة نهائياً لدى الجميع؟');
                             if (confirmed) {
                                 deleteChatMessage(id, msgKey);
@@ -1713,15 +1742,9 @@
                         
                         const imgEl = bubbleEl.querySelector('.chat-image');
                         if (imgEl) {
-                            imgEl.addEventListener('click', () => openImageViewer(m.img, 'صورة المحادثة'));
                             addLongPressListener(imgEl, deleteListener);
                         }
                         addLongPressListener(bubbleEl, deleteListener);
-                    } else if (m.img) {
-                        const imgEl = bubbleEl.querySelector('.chat-image');
-                        if (imgEl) {
-                            imgEl.addEventListener('click', () => openImageViewer(m.img, 'صورة المحادثة'));
-                        }
                     }
 
                     box.appendChild(bubbleEl);
@@ -2054,18 +2077,6 @@
         }
     }
 
-    function addLongPressListener(element, callback) {
-        let timer;
-        const start = () => { timer = setTimeout(callback, 700); };
-        const cancel = () => { clearTimeout(timer); };
-        element.addEventListener('mousedown', start);
-        element.addEventListener('touchstart', start);
-        element.addEventListener('mouseup', cancel);
-        element.addEventListener('mouseleave', cancel);
-        element.addEventListener('touchend', cancel);
-        element.addEventListener('touchcancel', cancel);
-    }
-
     function toggleEmojiPanel(force) {
         const panel = document.getElementById('emoji-panel');
         if (force === true) {
@@ -2212,13 +2223,29 @@
         bubble.className = 'bubble me' + (msg.audio ? ' audio-bubble' : '') + (msg.img ? ' image-bubble' : '');
         bubble.innerHTML = content + `<span class="bubble-time read">${time} ✓</span>`;
         
+        // Add click listener for images
+        const imgEl = bubble.querySelector('.chat-image');
+        if (imgEl) {
+            imgEl.addEventListener('click', (e) => {
+                e.stopPropagation();
+                openImageViewer(msg.img, 'صورة المحادثة');
+            });
+        }
+
         // Add long press for deletion
         if (msg.key) {
-            addLongPressListener(bubble, async () => {
+            const deleteListener = async (e) => {
+                if (e && e.preventDefault) e.preventDefault();
+                if (e && e.stopPropagation) e.stopPropagation();
                 if (await showConfirm("حذف الرسالة؟", "سيتم حذف هذه الرسالة نهائياً لدى الجميع.")) {
                     deleteChatMessage(chatId, msg.key);
                 }
-            });
+            };
+
+            if (imgEl) {
+                addLongPressListener(imgEl, deleteListener);
+            }
+            addLongPressListener(bubble, deleteListener);
         }
 
         box.appendChild(bubble);
