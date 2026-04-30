@@ -1418,8 +1418,11 @@
     }
 
     function addNewContact() {
-        const phone = document.getElementById('nc-phone').value.trim();
-        const contactName = document.getElementById('nc-name').value.trim();
+        const phoneInput = document.getElementById('nc-phone');
+        const nameInput = document.getElementById('nc-name');
+        const phone = phoneInput.value.trim();
+        const contactName = nameInput.value.trim();
+
         if (!phone) {
             showConfirm('رقم مطلوب', 'يرجى إدخال رقم جهة الاتصال.', true);
             return;
@@ -1430,22 +1433,40 @@
         }
 
         const cleanPhone = phone.replace(/[^\d+]/g, '');
+        const btn = document.querySelector('.contact-form .btn-add');
+        const originalText = btn.innerText;
+        btn.innerText = 'جارٍ التحقق...';
+        btn.disabled = true;
 
         db.ref('users/' + cleanPhone).once('value', s => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+
             if (s.exists()) {
-                if (!myFriends.some(c => c.phone === cleanPhone)) {
+                const existingIndex = myFriends.findIndex(c => c.phone === cleanPhone);
+                if (existingIndex === -1) {
+                    // New contact
                     myFriends.push({ phone: cleanPhone, name: contactName });
-                    localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
-                    loadMyContacts();
-                    showConfirm('تمت الإضافة', 'تمت إضافة ' + contactName + ' لجهات اتصالك.', false);
-                    document.getElementById('nc-name').value = '';
-                    document.getElementById('nc-phone').value = '';
                 } else {
-                    showConfirm('موجود مسبقاً', 'هذا الرقم مضاف بالفعل في قائمتك.', false);
+                    // Update existing contact name if it's already there
+                    myFriends[existingIndex].name = contactName;
                 }
+                
+                localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
+                loadMyContacts();
+                loadRecentChats();
+                
+                showConfirm('تمت الإضافة', 'تم حفظ ' + contactName + ' في جهات اتصالك.', false);
+                nameInput.value = '';
+                phoneInput.value = '';
             } else {
                 showConfirm('غير مشترك', 'هذا الرقم لا يستخدم We App حالياً. يمكنك دعوته لاستخدام التطبيق!', true);
             }
+        }).catch(err => {
+            btn.innerText = originalText;
+            btn.disabled = false;
+            console.error("Add contact error:", err);
+            showConfirm('خطأ', 'حدث خطأ أثناء الإضافة. تأكد من اتصال الإنترنت.', true);
         });
     }
 
@@ -1458,21 +1479,29 @@
     function loadMyContacts() {
         const l = document.getElementById('my-contacts-list');
         const count = document.getElementById('contacts-count');
+        if (!l) return;
+        
         l.innerHTML = '';
         count.innerText = myFriends.length;
+        
         if (myFriends.length === 0) {
             l.innerHTML = '<p class="no-contacts">لا توجد جهات اتصال محفوظة بعد. أضف جهة اتصال جديدة لتبدأ المحادثة.</p>';
             return;
         }
-        myFriends.forEach(contact => {
+
+        // Sort friends alphabetically by name
+        const sortedFriends = [...myFriends].sort((a, b) => a.name.localeCompare(b.name));
+
+        sortedFriends.forEach(contact => {
             const row = document.createElement('div');
             row.className = 'user-row';
             row.id = 'contact-row-' + contact.phone.replace(/[^\d]/g, '');
 
             const info = document.createElement('div');
             info.className = 'user-info';
-            // Start with local name
-            info.addEventListener('click', () => startChat({ phone: contact.phone, name: contact.name, img: 'https://b.top4top.io/p_3771kqoax0.png' }));
+            
+            // Set initial click handler
+            info.onclick = () => startChat({ phone: contact.phone, name: contact.name, img: 'https://b.top4top.io/p_3771kqoax0.png' });
 
             const avatar = document.createElement('img');
             avatar.src = 'https://b.top4top.io/p_3771kqoax0.png'; // Default
@@ -1480,29 +1509,40 @@
 
             const meta = document.createElement('div');
             meta.style.flex = '1';
+            meta.style.overflow = 'hidden';
+            
             const nameEl = document.createElement('b');
+            nameEl.style.display = 'block';
+            nameEl.style.whiteSpace = 'nowrap';
+            nameEl.style.overflow = 'hidden';
+            nameEl.style.textOverflow = 'ellipsis';
             nameEl.textContent = contact.name;
+            
             const phoneEl = document.createElement('small');
+            phoneEl.style.display = 'block';
             phoneEl.textContent = contact.phone;
-            meta.append(nameEl, document.createElement('br'), phoneEl);
+            
+            meta.append(nameEl, phoneEl);
 
             const actions = document.createElement('div');
             actions.style.display = 'flex';
-            actions.style.gap = '10px';
+            actions.style.gap = '8px';
+            actions.style.flexShrink = '0';
 
             const editBtn = document.createElement('div');
             editBtn.className = 'delete-btn';
             editBtn.style.color = '#3b82f6';
+            editBtn.style.background = 'rgba(59, 130, 246, 0.1)';
             editBtn.innerHTML = `
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             `;
-            editBtn.addEventListener('click', e => {
+            editBtn.onclick = (e) => {
                 e.stopPropagation();
                 editContactName(contact.phone, contact.name);
-            });
+            };
 
             const deleteBtn = document.createElement('div');
             deleteBtn.className = 'delete-btn';
@@ -1515,10 +1555,10 @@
                     <path d="M9 7V4H15V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             `;
-            deleteBtn.addEventListener('click', e => {
+            deleteBtn.onclick = (e) => {
                 e.stopPropagation();
                 removeContact(contact.phone, contact.name);
-            });
+            };
 
             actions.append(editBtn, deleteBtn);
             info.appendChild(avatar);
@@ -1527,15 +1567,15 @@
             row.appendChild(actions);
             l.appendChild(row);
 
-            // Fetch real user data from Firebase to update avatar and status
+            // Fetch real user data from Firebase to update avatar and click handler
             db.ref('users/' + contact.phone).once('value', s => {
                 const u = s.val();
                 if (u) {
                     avatar.src = u.img;
-                    avatar.addEventListener('click', e => {
+                    avatar.onclick = (e) => {
                         e.stopPropagation();
                         openImageViewer(u.img, contact.name || 'صورة الملف الشخصي');
-                    });
+                    };
                     info.onclick = () => startChat({ ...u, name: contact.name });
                 }
             });
