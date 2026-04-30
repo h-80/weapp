@@ -14,27 +14,25 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg); height: 100vh; overflow: hidden; }
 
-        /* شاشة الدخول بالخلفية الخضراء الكاملة */
+        /* شاشة الدخول المعدلة */
         #login-screen { 
             position: fixed; inset: 0; 
-            background: var(--wa-green); /* اللون الأخضر تماماً كالهيدر */
+            background: var(--wa-green); 
             z-index: 6000; 
             display: flex; align-items: center; justify-content: center; padding: 20px; 
-            color: white; /* نصوص بيضاء */
+            color: white;
         }
-        .login-main-logo { width: 320px; max-width: 90%; margin-bottom: 40px; }
+        .login-main-logo { width: 180px; max-width: 80%; margin-bottom: 30px; } /* حجم متناسق */
         
-        /* تعديل المدخلات في شاشة الدخول */
         #login-screen input { 
             width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 12px; 
             text-align: center; font-size: 16px; background: rgba(255, 255, 255, 0.9);
         }
         
-        /* زر الدخول المتباين مع الخلفية الخضراء */
         .btn-login-action { 
             width: 100%; padding: 15px; background: white; color: var(--wa-green); 
             border: none; border-radius: 12px; font-weight: bold; font-size: 18px; 
-            cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            cursor: pointer; margin-top: 10px;
         }
 
         /* الهيدر */
@@ -78,7 +76,6 @@
 <div id="login-screen" class="hidden">
     <div style="text-align: center; width: 100%; max-width: 400px;">
         <img src="https://a.top4top.io/p_3772g2v8s0.png" class="login-main-logo">
-        <h2 style="margin-bottom: 20px;">مرحباً بك في We App</h2>
         
         <div class="edit-pic-wrapper" onclick="document.getElementById('f-reg').click()">
             <img id="reg-pre" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
@@ -86,9 +83,9 @@
         </div>
         
         <input type="file" id="f-reg" class="hidden" accept="image/*" onchange="compress(this, 'reg-pre')">
-        <input type="text" id="n-reg" placeholder="أدخل اسمك المستعار">
+        <input type="text" id="n-reg" placeholder="الاسم المستعار">
         <input type="tel" id="p-reg" placeholder="رقم الهاتف">
-        <button class="btn-login-action" onclick="register()">انضم للمجتمع</button>
+        <button class="btn-login-action" onclick="register()">انضم الآن</button>
     </div>
 </div>
 
@@ -107,7 +104,7 @@
     </div>
 
     <div id="contacts-screen" class="screen hidden">
-        <div style="padding:20px; background:#f9f9f9; border-bottom:1px solid #eee; cursor:pointer; font-weight:bold;" onclick="hideContacts()">⬅ العودة للمحادثات</div>
+        <div style="padding:20px; background:#f9f9f9; border-bottom:1px solid #eee; cursor:pointer; font-weight:bold;" onclick="hideContacts()">⬅ العودة</div>
         <div id="all-list"></div>
     </div>
 </div>
@@ -115,14 +112,14 @@
 <div id="profile-modal" class="profile-modal">
     <div class="profile-card">
         <span style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:35px; color:#888;" onclick="toggleProfile(false)">&times;</span>
-        <h2 style="margin-bottom:25px; color:#333;">الملف الشخصي</h2>
+        <h2 style="margin-bottom:25px;">الملف الشخصي</h2>
         <div class="edit-pic-wrapper" onclick="document.getElementById('f-edit').click()">
             <img id="edit-pre" src="">
         </div>
         <input type="file" id="f-edit" class="hidden" accept="image/*" onchange="compress(this, 'edit-pre')">
         <input type="text" id="edit-name-input" placeholder="تعديل الاسم">
-        <button class="btn-save-profile" onclick="updateProfile()">حفظ التحديثات</button>
-        <button class="btn-out" onclick="logout()">تسجيل الخروج</button>
+        <button class="btn-save-profile" onclick="updateProfile()">حفظ</button>
+        <button class="btn-out" onclick="logout()">خروج</button>
     </div>
 </div>
 
@@ -130,12 +127,12 @@
     <div class="chat-header">
         <span onclick="closeChat()" style="cursor:pointer; font-size:30px; padding:0 10px;">⬅</span>
         <img id="c-avatar" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
-        <b id="c-name" style="font-size:18px;"></b>
+        <b id="c-name"></b>
     </div>
     <div id="c-msgs" class="msgs"></div>
     <div style="padding:15px; background:#f0f2f5; display:flex; gap:12px;">
-        <input type="text" id="c-input" placeholder="اكتب رسالة..." style="margin:0; border:1px solid #ddd; border-radius:12px; padding:12px; flex:1;">
-        <button onclick="sendMsg()" style="padding:0 25px; background:var(--wa-green); border:none; color:white; border-radius:12px; font-weight:bold;">إرسال</button>
+        <input type="text" id="c-input" placeholder="اكتب رسالة..." style="margin:0; flex:1; border-radius:12px; border:1px solid #ddd; padding:12px;">
+        <button onclick="sendMsg()" style="padding:0 20px; background:var(--wa-green); border:none; color:white; border-radius:12px; font-weight:bold;">إرسال</button>
     </div>
 </div>
 
