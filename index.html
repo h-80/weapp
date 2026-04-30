@@ -1555,7 +1555,7 @@
                         const deletionTime = deletedChats[id] || 0;
                         const filteredEntries = entries.filter(entry => {
                             const m = entry[1];
-                            return (m.timestamp || 0) > deletionTime || !m.timestamp;
+                            return (m.timestamp || 0) > deletionTime;
                         });
 
                         if (u && filteredEntries.length) {
@@ -1681,7 +1681,7 @@
             
             s.forEach(mS => {
                 const m = mS.val();
-                if ((m.timestamp || 0) > deletionTime || !m.timestamp) {
+                if ((m.timestamp || 0) > deletionTime) {
                     allMsgs.push(m);
                     const msgKey = mS.key;
                     const isMe = m.u === my.phone;
