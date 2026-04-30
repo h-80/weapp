@@ -9,66 +9,64 @@
     <style>
         :root { 
             --wa-green: #25d366; 
-            --wa-header: #25d366; 
             --bg: #f0f2f5; 
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg); height: 100vh; overflow: hidden; }
 
-        /* الهيدر مع تكبير الشعار */
-        header { 
-            background: var(--wa-header); 
-            color: white; 
-            padding: 0 12px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            height: 70px; /* زدنا ارتفاع الهيدر قليلاً ليتناسب مع الشعار الأكبر */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        }
-        .header-brand { display: flex; align-items: center; gap: 12px; }
-        .header-logo-img { height: 50px; width: auto; object-fit: contain; } /* تم التكبير هنا */
-        .app-name { font-weight: bold; font-size: 22px; color: white; }
-        .h-avatar { 
-            width: 45px; height: 45px; border-radius: 50%; 
-            border: 2px solid white; cursor: pointer; object-fit: cover; 
-        }
-
-        /* شاشة الدخول مع تكبير الشعار الرئيسي */
+        /* شاشة الدخول بالخلفية الخضراء الكاملة */
         #login-screen { 
-            position: fixed; inset: 0; background: white; z-index: 6000; 
+            position: fixed; inset: 0; 
+            background: var(--wa-green); /* اللون الأخضر تماماً كالهيدر */
+            z-index: 6000; 
             display: flex; align-items: center; justify-content: center; padding: 20px; 
+            color: white; /* نصوص بيضاء */
         }
-        .login-main-logo { width: 220px; margin-bottom: 30px; } /* تم التكبير هنا */
-
-        .screen { height: calc(100vh - 70px); overflow-y: auto; background: white; position: relative; }
-        .user-row { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; }
-        .user-row img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; }
+        .login-main-logo { width: 320px; max-width: 90%; margin-bottom: 40px; }
         
-        .fab { 
-            position: fixed; bottom: 25px; left: 25px; background: var(--wa-green); 
-            color: white; width: 60px; height: 60px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; font-size: 30px; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); cursor: pointer; 
+        /* تعديل المدخلات في شاشة الدخول */
+        #login-screen input { 
+            width: 100%; padding: 15px; margin: 10px 0; border: none; border-radius: 12px; 
+            text-align: center; font-size: 16px; background: rgba(255, 255, 255, 0.9);
+        }
+        
+        /* زر الدخول المتباين مع الخلفية الخضراء */
+        .btn-login-action { 
+            width: 100%; padding: 15px; background: white; color: var(--wa-green); 
+            border: none; border-radius: 12px; font-weight: bold; font-size: 18px; 
+            cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
 
-        /* نافذة الملف الشخصي */
-        .profile-modal {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-            z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px);
+        /* الهيدر */
+        header { 
+            background: var(--wa-green); 
+            color: white; padding: 0 15px; display: flex; justify-content: space-between; 
+            align-items: center; height: 85px; box-shadow: 0 3px 12px rgba(0,0,0,0.2);
         }
-        .profile-card { background: white; width: 85%; max-width: 350px; padding: 30px 20px; border-radius: 20px; text-align: center; position: relative; }
-        .edit-pic-wrapper { width: 110px; height: 110px; margin: 0 auto 20px; cursor: pointer; }
-        .edit-pic-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid var(--wa-green); }
+        .header-brand { display: flex; align-items: center; gap: 15px; }
+        .header-logo-img { height: 65px; width: auto; object-fit: contain; }
+        .app-name { font-weight: 900; font-size: 26px; }
+        .h-avatar { width: 55px; height: 55px; border-radius: 50%; border: 3px solid white; cursor: pointer; object-fit: cover; }
+
+        .screen { height: calc(100vh - 85px); overflow-y: auto; background: white; position: relative; }
+        .user-row { padding: 18px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; }
+        .user-row img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; }
         
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; }
-        .btn-action { width: 100%; padding: 12px; background: var(--wa-green); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        .btn-out { width: 100%; padding: 10px; background: #ff4b4b; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .fab { position: fixed; bottom: 30px; left: 30px; background: var(--wa-green); color: white; width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 35px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); cursor: pointer; }
+
+        /* مودال الملف الشخصي */
+        .profile-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 5000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
+        .profile-card { background: white; width: 90%; max-width: 380px; padding: 40px 25px; border-radius: 30px; text-align: center; position: relative; }
+        .edit-pic-wrapper { width: 130px; height: 130px; margin: 0 auto 25px; cursor: pointer; position: relative; }
+        .edit-pic-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--wa-green); }
+        
+        .btn-save-profile { width: 100%; padding: 15px; background: var(--wa-green); color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .btn-out { width: 100%; padding: 12px; background: #ff3b3b; color: white; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 15px; }
 
         .chat-full { position: fixed; inset: 0; background: #e5ddd5; z-index: 2000; display: none; flex-direction: column; }
-        .chat-header { background: #ededed; padding: 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #ddd; }
-        .msgs { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .bubble { padding: 8px 12px; border-radius: 8px; max-width: 80%; font-size: 14px; }
+        .chat-header { background: #ededed; padding: 12px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #ddd; }
+        .msgs { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .bubble { padding: 10px 15px; border-radius: 10px; max-width: 80%; font-size: 15px; }
         .me { align-self: flex-end; background: #dcf8c6; }
         .them { align-self: flex-start; background: white; }
 
@@ -78,15 +76,19 @@
 <body>
 
 <div id="login-screen" class="hidden">
-    <div style="text-align: center; width: 100%; max-width: 350px;">
+    <div style="text-align: center; width: 100%; max-width: 400px;">
         <img src="https://a.top4top.io/p_3772g2v8s0.png" class="login-main-logo">
+        <h2 style="margin-bottom: 20px;">مرحباً بك في We App</h2>
+        
         <div class="edit-pic-wrapper" onclick="document.getElementById('f-reg').click()">
             <img id="reg-pre" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+            <div style="position:absolute; bottom:5px; right:5px; background:white; border-radius:50%; width:30px; height:30px; color:var(--wa-green); display:flex; align-items:center; justify-content:center; font-size:18px;">+</div>
         </div>
+        
         <input type="file" id="f-reg" class="hidden" accept="image/*" onchange="compress(this, 'reg-pre')">
-        <input type="text" id="n-reg" placeholder="اسمك المستعار">
-        <input type="tel" id="p-reg" placeholder="رقم الموبايل">
-        <button class="btn-action" onclick="register()">انضم الآن</button>
+        <input type="text" id="n-reg" placeholder="أدخل اسمك المستعار">
+        <input type="tel" id="p-reg" placeholder="رقم الهاتف">
+        <button class="btn-login-action" onclick="register()">انضم للمجتمع</button>
     </div>
 </div>
 
@@ -105,35 +107,35 @@
     </div>
 
     <div id="contacts-screen" class="screen hidden">
-        <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; cursor:pointer; font-weight:bold;" onclick="hideContacts()">⬅ العودة</div>
+        <div style="padding:20px; background:#f9f9f9; border-bottom:1px solid #eee; cursor:pointer; font-weight:bold;" onclick="hideContacts()">⬅ العودة للمحادثات</div>
         <div id="all-list"></div>
     </div>
 </div>
 
 <div id="profile-modal" class="profile-modal">
     <div class="profile-card">
-        <span style="position:absolute; top:10px; right:15px; cursor:pointer; font-size:25px;" onclick="toggleProfile(false)">&times;</span>
-        <h3 style="margin-bottom:20px;">الملف الشخصي</h3>
+        <span style="position:absolute; top:15px; right:20px; cursor:pointer; font-size:35px; color:#888;" onclick="toggleProfile(false)">&times;</span>
+        <h2 style="margin-bottom:25px; color:#333;">الملف الشخصي</h2>
         <div class="edit-pic-wrapper" onclick="document.getElementById('f-edit').click()">
             <img id="edit-pre" src="">
         </div>
         <input type="file" id="f-edit" class="hidden" accept="image/*" onchange="compress(this, 'edit-pre')">
-        <input type="text" id="edit-name-input" placeholder="تغيير الاسم">
-        <button class="btn-action" onclick="updateProfile()">حفظ التحديث</button>
-        <button class="btn-out" onclick="logout()">خروج نهائي</button>
+        <input type="text" id="edit-name-input" placeholder="تعديل الاسم">
+        <button class="btn-save-profile" onclick="updateProfile()">حفظ التحديثات</button>
+        <button class="btn-out" onclick="logout()">تسجيل الخروج</button>
     </div>
 </div>
 
 <div id="chat-ui" class="chat-full">
     <div class="chat-header">
-        <span onclick="closeChat()" style="cursor:pointer; font-size:24px; padding:0 5px;">⬅</span>
-        <img id="c-avatar" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">
-        <b id="c-name"></b>
+        <span onclick="closeChat()" style="cursor:pointer; font-size:30px; padding:0 10px;">⬅</span>
+        <img id="c-avatar" style="width:45px; height:45px; border-radius:50%; object-fit:cover;">
+        <b id="c-name" style="font-size:18px;"></b>
     </div>
     <div id="c-msgs" class="msgs"></div>
-    <div style="padding:10px; background:#f0f2f5; display:flex; gap:10px;">
-        <input type="text" id="c-input" placeholder="رسالة جديدة...">
-        <button onclick="sendMsg()" style="padding:10px 20px; background:var(--wa-green); border:none; color:white; border-radius:10px;">إرسال</button>
+    <div style="padding:15px; background:#f0f2f5; display:flex; gap:12px;">
+        <input type="text" id="c-input" placeholder="اكتب رسالة..." style="margin:0; border:1px solid #ddd; border-radius:12px; padding:12px; flex:1;">
+        <button onclick="sendMsg()" style="padding:0 25px; background:var(--wa-green); border:none; color:white; border-radius:12px; font-weight:bold;">إرسال</button>
     </div>
 </div>
 
@@ -171,7 +173,7 @@
     async function register() {
         const n = document.getElementById('n-reg').value.trim();
         const p = document.getElementById('p-reg').value.trim();
-        if(!n || !p) return alert("الرجاء تعبئة الحقول");
+        if(!n || !p) return alert("أكمل البيانات");
         my = { name: n, phone: p, img: tempImg || "https://cdn-icons-png.flaticon.com/512/149/149071.png" };
         await db.ref('users/' + p).set(my);
         localStorage.setItem('we_user_v2', JSON.stringify(my));
@@ -203,7 +205,7 @@
     }
 
     function logout() {
-        if(confirm("هل تريد مغادرة التطبيق؟")) { localStorage.clear(); location.reload(); }
+        if(confirm("خروج؟")) { localStorage.clear(); location.reload(); }
     }
 
     function loadRecents() {
