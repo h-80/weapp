@@ -1053,14 +1053,14 @@
         </div>
 
         <div class="call-actions">
-            <button id="reject-call-btn" type="button" class="call-btn reject-btn" onclick="rejectIncomingCall()">
+            <button id="reject-call-btn" type="button" class="call-btn reject-btn" onclick="rejectIncomingCall()" title="رفض">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="transform: rotate(135deg);"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-4.2-6.6-7l2.2-2.2c.3-.3.4-.7.2-1-.4-1.2-.6-2.4-.6-3.6 0-.5-.5-1-1-1H5c-.5 0-1 .5-1 1 0 9.4 7.6 17 17 17 .5 0 1-.5 1-1v-3.5c0-.5-.5-1-1-1z"/></svg>
+            </button>
+            <button id="accept-call-btn" type="button" class="call-btn accept-btn" onclick="acceptIncomingCall()" title="قبول">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-4.2-6.6-7l2.2-2.2c.3-.3.4-.7.2-1-.4-1.2-.6-2.4-.6-3.6 0-.5-.5-1-1-1H5c-.5 0-1 .5-1 1 0 9.4 7.6 17 17 17 .5 0 1-.5 1-1v-3.5c0-.5-.5-1-1-1z"/></svg>
             </button>
-            <button id="accept-call-btn" type="button" class="call-btn accept-btn" onclick="acceptIncomingCall()">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-4.2-6.6-7l2.2-2.2c.3-.3.4-.7.2-1-.4-1.2-.6-2.4-.6-3.6 0-.5-.5-1-1-1H5c-.5 0-1 .5-1 1 0 9.4 7.6 17 17 17 .5 0 1-.5 1-1v-3.5c0-.5-.5-1-1-1z"/></svg>
-            </button>
-            <button id="hangup-call-btn" type="button" class="call-btn hangup-btn" onclick="endCall()" style="display: none;">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-4.2-6.6-7l2.2-2.2c.3-.3.4-.7.2-1-.4-1.2-.6-2.4-.6-3.6 0-.5-.5-1-1-1H5c-.5 0-1 .5-1 1 0 9.4 7.6 17 17 17 .5 0 1-.5 1-1v-3.5c0-.5-.5-1-1-1z"/></svg>
+            <button id="hangup-call-btn" type="button" class="call-btn hangup-btn" onclick="endCall()" style="display: none;" title="إنهاء">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="transform: rotate(135deg);"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-4.2-6.6-7l2.2-2.2c.3-.3.4-.7.2-1-.4-1.2-.6-2.4-.6-3.6 0-.5-.5-1-1-1H5c-.5 0-1 .5-1 1 0 9.4 7.6 17 17 17 .5 0 1-.5 1-1v-3.5c0-.5-.5-1-1-1z"/></svg>
             </button>
         </div>
     </div>
