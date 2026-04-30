@@ -918,7 +918,10 @@
         </div>
         <div class="chat-info">
             <div class="chat-title">
-                <b id="c-name"></b>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <b id="c-name"></b>
+                    <button id="add-contact-header-btn" onclick="quickAddContact()" style="display: none; background: var(--app-theme); color: white; border: none; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; cursor: pointer; white-space: nowrap;">+ إضافة</button>
+                </div>
                 <span id="chat-status" class="chat-status">آخر ظهور اليوم الساعة 4:43 م</span>
             </div>
             <img id="c-avatar" src="" alt="صورة جهة الاتصال">
@@ -1392,6 +1395,28 @@
         showConfirm('تم الحفظ', 'تم حفظ البيانات بنجاح.', false);
     }
 
+    function quickAddContact() {
+        if (!peer || !peer.phone) return;
+        const currentPhone = peer.phone;
+        const currentName = peer.name || currentPhone;
+        
+        const contactName = prompt("أدخل اسم جهة الاتصال لحفظها:", currentName);
+        if (contactName !== null && contactName.trim() !== "") {
+            if (!myFriends.some(c => c.phone === currentPhone)) {
+                myFriends.push({ phone: currentPhone, name: contactName.trim() });
+                localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
+                
+                // Update UI
+                document.getElementById('c-name').innerText = contactName.trim();
+                document.getElementById('add-contact-header-btn').style.display = 'none';
+                
+                loadMyContacts();
+                loadRecentChats();
+                showConfirm('تمت الإضافة', 'تمت إضافة ' + contactName.trim() + ' لجهات اتصالك.', false);
+            }
+        }
+    }
+
     function addNewContact() {
         const phone = document.getElementById('nc-phone').value.trim();
         const contactName = document.getElementById('nc-name').value.trim();
@@ -1674,6 +1699,12 @@
         cAvatar.classList.add('profile-avatar-clickable');
         cAvatar.onclick = () => openImageViewer(u.img, displayName || 'صورة الملف الشخصي');
         document.getElementById('c-name').innerText = displayName;
+        
+        // Show/Hide Add Contact button if number is not in friends list
+        const addBtn = document.getElementById('add-contact-header-btn');
+        const isFriend = myFriends.some(f => f.phone === u.phone);
+        addBtn.style.display = isFriend ? 'none' : 'block';
+
         document.getElementById('chat-status').innerText = u.status || 'متصل الآن';
         document.getElementById('c-input').value = '';
         updateInputMode();
