@@ -9,9 +9,9 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     
     <style>
-        :root { --app-theme: #25d366; --bg: #eef3f8; --surface: #ffffff; --surface-soft: #f8fbff; --red: #ff4b4b; --text: #111827; --muted: #6b7280; --border: #e5e7eb; }
+        :root { --app-theme: #25d366; --bg: #ffffff; --surface: #ffffff; --surface-soft: #ffffff; --red: #ff4b4b; --text: #111827; --muted: #6b7280; --border: #e5e7eb; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; }
-        body { min-height: 100vh; background: radial-gradient(circle at top left, rgba(37, 211, 102, 0.16), transparent 18%), linear-gradient(180deg, #f8fbff 0%, #eef3f8 100%); color: var(--text); overflow: hidden; }
+        body { min-height: 100vh; background: #ffffff; color: var(--text); overflow: hidden; }
         button { font-family: inherit; }
 
         header {
@@ -22,7 +22,7 @@
             justify-content: center;
             padding: 16px 20px;
             height: 100px;
-            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+            box-shadow: none;
             position: relative;
         }
         .brand {
@@ -37,7 +37,7 @@
         .app-name { font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif; font-weight: 900; font-size: 28px; letter-spacing: -0.05em; }
         .app-tagline { display: none; }
 
-        .screen { height: calc(100vh - 100px); overflow-y: auto; background: var(--surface-soft); padding: 24px 20px 140px; }
+        .screen { height: calc(100vh - 100px); overflow-y: auto; background: var(--surface); padding: 24px 20px 140px; }
         .screen::before {
             content: '';
             position: fixed;
@@ -45,7 +45,7 @@
             left: 0;
             right: 0;
             height: 120px;
-            background: radial-gradient(circle, rgba(37,211,102,0.12) 0%, transparent 60%);
+            background: transparent;
             pointer-events: none;
         }
         .user-row { background: #ffffff; border: 1px solid var(--border); border-radius: 18px; padding: 16px; display: flex; align-items: center; gap: 16px; transition: transform 0.2s ease, box-shadow 0.2s ease; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04); margin-bottom: 14px; }
@@ -73,6 +73,26 @@
             transform: translateY(-1px);
             opacity: 1;
         }
+        .delete-chat-btn {
+            background: transparent;
+            color: var(--app-theme);
+            border-radius: 0;
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        .delete-chat-btn:hover {
+            background: rgba(37, 211, 102, 0.12);
+            transform: none;
+            opacity: 1;
+        }
+        .delete-chat-btn svg {
+            width: 20px;
+            height: 20px;
+        }
 
         #custom-confirm {
             position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45); z-index: 9999;
@@ -83,7 +103,7 @@
         .confirm-btns { display: flex; gap: 10px; margin-top: 24px; }
         .confirm-btns button { flex: 1; padding: 12px; border: none; border-radius: 14px; font-weight: bold; cursor: pointer; }
 
-        #contacts-screen { position: fixed; inset: 0; background: var(--surface-soft); z-index: 3000; transform: translateY(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        #contacts-screen { position: fixed; inset: 0; background: var(--surface); z-index: 3000; transform: translateY(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         #contacts-screen.show { transform: translateY(0); }
         .contact-form { padding: 24px; background: var(--surface); border-radius: 28px; border: 1px solid rgba(16, 185, 129, 0.16); box-shadow: 0 16px 40px rgba(37, 211, 102, 0.08); margin: 0 20px 18px; }
         .contact-form input { width: 100%; padding: 16px 18px; border-radius: 20px; border: 1px solid var(--border); outline: none; font-size: 15px; margin-bottom: 14px; background: #fff; }
@@ -108,13 +128,8 @@
         .chat-full {
             position: fixed;
             inset: 0;
-            background-color: #e5ddd5;
-            background-image:
-                radial-gradient(circle at 60px 60px, rgba(255, 255, 255, 0.12) 0, transparent 12px),
-                radial-gradient(circle at 190px 30px, rgba(255, 255, 255, 0.12) 0, transparent 14px),
-                radial-gradient(circle at 140px 180px, rgba(255, 255, 255, 0.08) 0, transparent 10px),
-                radial-gradient(circle at 260px 250px, rgba(255, 255, 255, 0.1) 0, transparent 12px);
-            background-size: 100px 100px, 120px 120px, 80px 80px, 100px 100px;
+            background-color: #ffffff;
+            background-image: none;
             z-index: 2000;
             display: none;
             flex-direction: column;
@@ -140,11 +155,11 @@
             gap: 10px;
         }
         .chat-actions button {
-            width: 38px;
-            height: 38px;
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
             border: none;
-            background: rgba(16, 185, 129, 0.12);
+            background: transparent;
             color: var(--app-theme);
             font-size: 18px;
             cursor: pointer;
@@ -152,9 +167,152 @@
         .chat-actions button:hover {
             background: rgba(16, 185, 129, 0.2);
         }
+        .call-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: transparent;
+            color: var(--app-theme);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s ease, transform 0.2s ease;
+        }
+        .call-btn:hover {
+            background: rgba(37, 211, 102, 0.16);
+            transform: translateY(-1px);
+        }
+        .call-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        .call-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 7000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(6px);
+            padding: 24px;
+        }
+        .call-overlay.show {
+            display: flex;
+        }
+        .call-card {
+            width: min(560px, 100%);
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 24px;
+            box-shadow: 0 24px 90px rgba(15, 23, 42, 0.22);
+            display: grid;
+            gap: 18px;
+        }
+        .call-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .call-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 900;
+        }
+        .call-status {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .call-media {
+            position: relative;
+            min-height: 240px;
+            background: #f7faf8;
+            border-radius: 22px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .call-media video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            background: #000;
+        }
+        .remote-placeholder {
+            padding: 24px;
+            text-align: center;
+            color: #374151;
+            font-size: 15px;
+        }
+        .call-local-preview {
+            position: absolute;
+            right: 18px;
+            bottom: 18px;
+            width: 105px;
+            height: 105px;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.9);
+            background: rgba(255,255,255,0.95);
+            display: grid;
+            place-items: center;
+        }
+        .call-local-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .local-audio-preview {
+            font-size: 32px;
+            color: var(--app-theme);
+        }
+        .call-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .call-actions button {
+            min-width: 110px;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.16s ease, background 0.16s ease;
+        }
+        .call-actions .accept-btn {
+            background: var(--app-theme);
+            color: white;
+        }
+        .call-actions .reject-btn {
+            background: #ef4444;
+            color: white;
+        }
+        .call-actions .hangup-btn {
+            background: #f3f4f6;
+            color: #111827;
+        }
+        .call-actions .hangup-btn.active {
+            background: rgba(37, 211, 102, 0.12);
+            color: var(--app-theme);
+        }
+        .call-end-button {
+            border: none;
+            background: transparent;
+            font-size: 24px;
+            cursor: pointer;
+            color: #111827;
+            line-height: 1;
+        }
         .chat-info {
             display: flex;
-            flex-direction: row-reverse;
+            flex-direction: row;
             align-items: center;
             gap: 12px;
             min-width: 0;
@@ -215,58 +373,80 @@
             display: flex;
             flex-direction: column;
             gap: 14px;
-            background: transparent;
+            background: #e5ddd5;
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png');
+            background-repeat: repeat;
+            background-attachment: local;
         }
         .bubble {
-            padding: 12px 16px;
-            border-radius: 18px;
-            max-width: 76%;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 85%;
             font-size: 15px;
-            line-height: 1.6;
+            line-height: 1.4;
             word-break: break-word;
             position: relative;
-            box-shadow: none;
+            box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
+            margin-bottom: 2px;
         }
         .me {
-            align-self: flex-start;
+            align-self: flex-end;
             background: #dcf8c6;
             color: #111;
-            border-top-left-radius: 18px;
-            border-top-right-radius: 18px;
-            border-bottom-left-radius: 6px;
-            border-bottom-right-radius: 18px;
-        }
-        .me::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: -6px;
-            width: 12px;
-            height: 16px;
-            background: #dcf8c6;
-            clip-path: polygon(100% 0, 0 50%, 100% 100%);
-            transform: translateY(-1px);
+            border-top-left-radius: 8px;
+            border-top-right-radius: 0;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
         }
         .them {
-            align-self: flex-end;
+            align-self: flex-start;
             background: #ffffff;
-            color: #111827;
-            border-top-right-radius: 18px;
-            border-top-left-radius: 18px;
-            border-bottom-left-radius: 18px;
-            border-bottom-right-radius: 6px;
-            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: #111;
+            border-top-right-radius: 8px;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
         }
-        .them::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            right: -6px;
-            width: 12px;
-            height: 16px;
+        .bubble.audio-bubble {
             background: #ffffff;
-            clip-path: polygon(0 0, 100% 50%, 0 100%);
-            transform: translateY(-1px);
+            padding: 6px;
+            min-width: 200px;
+        }
+        .me.audio-bubble {
+            background: #dcf8c6;
+        }
+        .audio-body {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: transparent;
+            border: none;
+            padding: 4px;
+        }
+        .audio-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: #666;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .audio-player {
+            width: 100%;
+            height: 30px;
+            outline: none;
+        }
+        .image-message img {
+            width: 100%;
+            border-radius: 6px;
+            display: block;
+            max-height: 350px;
+            object-fit: cover;
+            cursor: pointer;
         }
         .bubble-time {
             display: block;
@@ -282,6 +462,109 @@
         .me .bubble-time.read {
             color: #34b7f1;
             font-weight: 700;
+        }
+        .audio-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .bubble.audio-bubble {
+            min-width: 260px;
+        }
+        .bubble.image-bubble {
+            padding: 4px;
+        }
+        .audio-body {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+        .audio-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            color: #888;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .audio-player {
+            flex: 1;
+            height: 32px;
+            outline: none;
+        }
+        .image-message img {
+            width: 100%;
+            border-radius: 18px;
+            display: block;
+            max-height: 320px;
+            object-fit: cover;
+            cursor: pointer;
+        }
+        .chat-avatar-clickable,
+        .profile-avatar-clickable {
+            cursor: pointer;
+        }
+        .image-viewer {
+            position: fixed;
+            inset: 0;
+            display: none;
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.85);
+            padding: 20px;
+        }
+        .image-viewer.show {
+            display: flex;
+        }
+        .image-viewer-content {
+            position: relative;
+            max-width: min(940px, 100%);
+            width: 100%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            align-items: center;
+        }
+        .image-viewer-content img {
+            width: 100%;
+            max-height: 84vh;
+            border-radius: 24px;
+            object-fit: contain;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.36);
+        }
+        .image-viewer-caption {
+            color: #f8fafc;
+            font-size: 15px;
+            text-align: center;
+            word-break: break-word;
+            max-width: 100%;
+        }
+        .image-viewer-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 12px 24px rgba(239, 68, 68, 0.24), 0 0 0 0 rgba(239, 68, 68, 0); }
+            50% { box-shadow: 0 12px 24px rgba(239, 68, 68, 0.34), 0 0 0 12px rgba(239, 68, 68, 0.16); }
         }
         .chat-input-area {
             padding: 10px 12px;
@@ -325,21 +608,40 @@
             height: 44px;
             border-radius: 50%;
             border: none;
-            background: rgba(16, 185, 129, 0.08);
-            color: var(--text);
+            background: transparent;
+            color: var(--app-theme);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
         }
-        .mic-btn.recording {
-            background: #ef4444;
-            color: white;
+        .chat-input-pill .camera-btn svg,
+        .chat-input-pill .attach-btn svg,
+        .chat-input-pill .emoji-btn svg {
+            width: 26px;
+            height: 26px;
         }
         .chat-input-pill .camera-btn:hover,
         .chat-input-pill .attach-btn:hover,
         .chat-input-pill .emoji-btn:hover {
-            background: rgba(16, 185, 129, 0.16);
+            background: rgba(16, 185, 129, 0.12);
+        }
+        .mic-btn.recording {
+            background: #ef4444;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        .recording-pulse {
+            width: 10px;
+            height: 10px;
+            background: #ef4444;
+            border-radius: 50%;
+            animation: pulse 1s infinite;
         }
         .chat-input-pill input {
             flex: 1;
@@ -473,6 +775,20 @@
             transform: translateY(-1px);
             filter: brightness(1.04);
         }
+        .login-card .btn-register {
+            margin-top: 12px;
+            background: #10b981;
+            box-shadow: 0 14px 34px rgba(16, 185, 129, 0.24);
+        }
+        .login-card .btn-register:hover {
+            filter: brightness(1.08);
+        }
+        .login-card .login-note {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -521,7 +837,10 @@
         </div>
         <h2>We App</h2>
         <input id="login-phone" type="tel" placeholder="رقم الهاتف">
-        <button onclick="login()">تسجيل الدخول</button>
+        <input id="login-name" type="text" placeholder="الاسم (للتسجيل)">
+        <button onclick="login(event)">تسجيل الدخول</button>
+        <button type="button" onclick="register(event)" class="btn-register">إنشاء حساب جديد</button>
+        <p class="login-note">إذا كنت تستخدم رقمًا جديدًا، أدخل اسمك ثم اضغط إنشاء حساب.</p>
     </div>
 </div>
 
@@ -553,7 +872,8 @@
     <div class="contact-form">
         <input type="text" id="nc-name" placeholder="اسم جهة اتصال جديدة">
         <input type="tel" id="nc-phone" placeholder="رقم الهاتف">
-        <button onclick="addNewContact()" class="btn-add">تزامن وإضافة</button>
+        <button onclick="addNewContact()" class="btn-add">إضافة جهة اتصال</button>
+        <p style="font-size: 12px; color: #6b7280; margin-top: 10px; text-align: center;">يتم التحقق تلقائياً من وجود الرقم في قاعدة البيانات عند الإضافة.</p>
     </div>
 
     <div class="contacts-summary">
@@ -565,6 +885,18 @@
 
 <div id="chat-ui" class="chat-full">
     <div class="chat-header">
+        <div class="chat-actions">
+            <button type="button" class="call-btn audio-call-btn" onclick="startCall('audio')" title="اتصال صوتي">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6.62 10.79C8.06 13.99 10.99 16.92 14.19 18.36L16.27 16.28C16.63 15.92 17.18 15.83 17.66 16.02C18.78 16.47 19.98 16.72 21.24 16.72C21.66 16.72 22 17.06 22 17.48V21.24C22 21.66 21.66 22 21.24 22C10.5 22 1.99999 13.5 1.99999 2.76C1.99999 2.34 2.33999 2 2.75999 2H6.51999C6.94999 2 7.28999 2.34 7.28999 2.76C7.28999 4.02 7.53999 5.22 7.99999 6.34C8.18999 6.82 8.10999 7.36 7.74999 7.72L5.66999 9.8C5.49999 9.98 5.45999 10.25 5.55999 10.49L6.62 10.79Z" fill="currentColor"/>
+                </svg>
+            </button>
+            <button type="button" class="call-btn video-call-btn" onclick="startCall('video')" title="اتصال فيديو">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M17 10.5V7c0-1.1-.9-2-2-2H5C3.9 5 3 5.9 3 7v10c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-3.5l4 4v-11l-4 4Z" fill="currentColor"/>
+                </svg>
+            </button>
+        </div>
         <div class="chat-info">
             <div class="chat-title">
                 <b id="c-name"></b>
@@ -585,13 +917,20 @@
         <button type="button" onclick="insertEmoji('😎')">😎</button>
     </div>
     <div class="chat-input-area">
-        <div class="chat-input-pill">
+        <div class="chat-input-pill" id="chat-input-pill">
             <button type="button" class="emoji-btn" onclick="toggleEmojiPanel()">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22ZM8.5 10C9.33 10 10 9.33 10 8.5C10 7.67 9.33 7 8.5 7C7.67 7 7 7.67 7 8.5C7 9.33 7.67 10 8.5 10ZM15.5 10C16.33 10 17 9.33 17 8.5C17 7.67 16.33 7 15.5 7C14.67 7 14 7.67 14 8.5C14 9.33 14.67 10 15.5 10ZM8 15C8.83 16.33 10.33 17 12 17C13.67 17 15.17 16.33 16 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
             <input type="text" id="c-input" placeholder="مراسلة" oninput="updateInputMode()" onkeydown="handleChatInputKeydown(event)">
-            <button type="button" class="camera-btn" onclick="openAttachmentPopup()" title="إضافة صورة">
+            
+            <div id="recording-status" style="display:none; flex:1; align-items:center; gap:10px; color:#ef4444; font-weight:500; font-size:14px; padding: 0 10px;">
+                <span class="recording-pulse" style="width:10px; height:10px; background:#ef4444; border-radius:50%; animation: pulse 1s infinite;"></span>
+                <span>جارٍ التسجيل...</span>
+                <b id="recording-timer">00:00</b>
+            </div>
+
+            <button type="button" class="camera-btn" id="camera-btn" onclick="openAttachmentPopup()" title="إضافة صورة">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 5h-3.2l-1.8-2H8L6.2 5H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 12H3V7h3.8l1.8-2h4.4l1.8 2H21v10zm-8-9a4 4 0 100 8 4 4 0 000-8zm0 2a2 2 0 110 4 2 2 0 010-4z" fill="currentColor"/></svg>
             </button>
             <button type="button" id="send-btn" class="send-btn" onclick="sendMsg()" style="display:none">
@@ -603,22 +942,77 @@
         </button>
     </div>
 </div>
+<div id="call-overlay" class="call-overlay">
+    <div class="call-card">
+        <div class="call-header">
+            <div>
+                <h3 id="call-type-label">مكالمة جديدة</h3>
+                <p id="call-status-label" class="call-status">جارٍ التحضير...</p>
+            </div>
+            <button type="button" class="call-end-button" onclick="endCall()">×</button>
+        </div>
+        <div class="call-media">
+            <video id="remote-video" autoplay playsinline></video>
+            <audio id="remote-audio" autoplay></audio>
+            <div id="remote-placeholder" class="remote-placeholder">جارٍ الاتصال...</div>
+            <div id="local-preview" class="call-local-preview">
+                <video id="local-video" autoplay muted playsinline></video>
+                <div id="local-audio-preview" class="local-audio-preview">🎙️</div>
+            </div>
+        </div>
+        <div class="call-actions">
+            <button id="accept-call-btn" type="button" class="accept-btn" onclick="acceptIncomingCall()">قبول</button>
+            <button id="reject-call-btn" type="button" class="reject-btn" onclick="rejectIncomingCall()">رفض</button>
+            <button id="hangup-call-btn" type="button" class="hangup-btn active" onclick="endCall()">انهاء</button>
+        </div>
+    </div>
+</div>
+<div id="image-viewer" class="image-viewer" onclick="closeImageViewer()">
+    <div class="image-viewer-content" onclick="event.stopPropagation()">
+        <button type="button" class="image-viewer-close" onclick="closeImageViewer()">×</button>
+        <img id="viewer-img" src="" alt="عرض الصورة">
+        <div id="viewer-caption" class="image-viewer-caption"></div>
+    </div>
+</div>
 <input id="chat-img-input" type="file" accept="image/*" style="display:none" onchange="handleChatImage(event)">
+<input id="chat-audio-input" type="file" accept="audio/*" capture style="display:none" onchange="handleSystemAudio(event)">
 
 <script>
-    const firebaseConfig = { databaseURL: "https://weapp-80-default-rtdb.firebaseio.com" };
-    const fb = firebase.initializeApp(firebaseConfig);
-    const db = fb.database();
+    let db;
+    try {
+        const firebaseConfig = { databaseURL: "https://weapp-80-default-rtdb.firebaseio.com" };
+        const fb = firebase.initializeApp(firebaseConfig);
+        db = fb.database();
+    } catch (e) {
+        console.error("Firebase initialization failed:", e);
+        alert("فشل تهيئة الاتصال بقاعدة البيانات. يرجى التأكد من اتصال الإنترنت.");
+    }
 
-    let my = JSON.parse(localStorage.getItem('we_user_v2')) || null;
-    let deletedChats = JSON.parse(localStorage.getItem('deleted_chats')) || [];
+    let my = null;
+    try {
+        my = JSON.parse(localStorage.getItem('we_user_v2')) || null;
+    } catch (e) {
+        console.error("Local storage error:", e);
+    }
+    let deletedChats = JSON.parse(localStorage.getItem('deleted_chats_v2')) || {};
     let chatSeenCounts = JSON.parse(localStorage.getItem('chat_seen_counts')) || {};
+    let lastNotifiedMessageKeys = {};
     let myFriends = JSON.parse(localStorage.getItem('my_friends_list')) || [];
     if (myFriends.length && typeof myFriends[0] === 'string') {
         myFriends = myFriends.map(phone => ({ phone, name: phone }));
         localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
     }
     let peer = null;
+    let callConnection = null;
+    let callLocalStream = null;
+    let callRemoteStream = null;
+    let callType = null;
+    let callId = null;
+    let isCaller = false;
+    let callRef = null;
+    let incomingCallsRef = null;
+    let currentChatCallId = null;
+    let pendingIncomingCall = null;
 
     function saveChatSeenCounts() {
         localStorage.setItem('chat_seen_counts', JSON.stringify(chatSeenCounts));
@@ -626,6 +1020,23 @@
 
     function getChatSeenCount(id) {
         return chatSeenCounts[id] || 0;
+    }
+
+    function requestNotificationPermission() {
+        if (!('Notification' in window)) return;
+        if (Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+    }
+
+    function showDesktopNotification(title, body, icon) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        try {
+            const notification = new Notification(title, { body, icon });
+            notification.onclick = () => window.focus();
+        } catch (e) {
+            console.warn('Notification error:', e);
+        }
     }
 
     function updateChatSeenCount(id, count) {
@@ -662,8 +1073,10 @@
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app-content').style.display = 'block';
         document.getElementById('header-img').src = my.img || 'https://b.top4top.io/p_3771kqoax0.png';
+        requestNotificationPermission();
         loadRecentChats();
         loadMyContacts();
+        listenForIncomingCalls();
     }
 
     function showLogin() {
@@ -672,22 +1085,131 @@
         hideAllOverlays();
     }
 
-    function login() {
-        const phone = document.getElementById('login-phone').value.trim();
+    function login(e) {
+        if (e) e.preventDefault();
+        const phoneInput = document.getElementById('login-phone');
+        const nameInput = document.getElementById('login-name');
+        
+        const phone = phoneInput.value.trim();
+        const name = nameInput.value.trim();
+        
         if (!phone) {
             showConfirm('رقم مطلوب', 'يرجى إدخال رقم الهاتف للمتابعة.', true);
             return;
         }
-        db.ref('users/' + phone).once('value', s => {
-            if (s.exists()) {
-                my = s.val();
-                my.phone = phone;
-                localStorage.setItem('we_user_v2', JSON.stringify(my));
-                initApp();
-            } else {
-                showConfirm('غير موجود', 'هذا الرقم غير مسجل في التطبيق.', true);
-            }
-        });
+
+        const cleanPhone = phone.replace(/[^\d+]/g, '');
+        if (!cleanPhone) {
+            showConfirm('رقم غير صحيح', 'يرجى إدخال رقم هاتف صالح.', true);
+            return;
+        }
+
+        const loginBtn = document.querySelector('button[onclick^="login"]');
+        const originalBtnText = loginBtn ? loginBtn.innerText : 'تسجيل الدخول';
+        if (loginBtn) {
+            loginBtn.innerText = 'جارٍ الدخول...';
+            loginBtn.disabled = true;
+        }
+
+        db.ref('users/' + cleanPhone).once('value')
+            .then(s => {
+                if (loginBtn) {
+                    loginBtn.innerText = originalBtnText;
+                    loginBtn.disabled = false;
+                }
+
+                if (s.exists()) {
+                    my = s.val();
+                    my.phone = cleanPhone;
+                    // Restore name from local storage if available, or use a default
+                    if (!my.name) {
+                        const localData = JSON.parse(localStorage.getItem('we_user_v2'));
+                        my.name = (localData && localData.phone === cleanPhone) ? localData.name : 'أنا';
+                    }
+                    localStorage.setItem('we_user_v2', JSON.stringify(my));
+                    initApp();
+                } else if (name) {
+                    register(e);
+                } else {
+                    showConfirm('غير موجود', 'هذا الرقم غير مسجل. أدخل اسمك واضغط "إنشاء حساب جديد".', true);
+                }
+            })
+            .catch(error => {
+                console.error('Login error:', error);
+                if (loginBtn) {
+                    loginBtn.innerText = originalBtnText;
+                    loginBtn.disabled = false;
+                }
+                showConfirm('خطأ في الاتصال', 'تأكد من اتصالك بالإنترنت وحاول مرة أخرى.', true);
+            });
+    }
+
+    function register(e) {
+        if (e) e.preventDefault();
+        const phoneInput = document.getElementById('login-phone');
+        const nameInput = document.getElementById('login-name');
+        const registerBtn = document.querySelector('.btn-register');
+        
+        const phone = phoneInput.value.trim();
+        const name = nameInput.value.trim();
+
+        if (!phone) {
+            showConfirm('رقم مطلوب', 'يرجى إدخال رقم الهاتف.', true);
+            return;
+        }
+        if (!name) {
+            showConfirm('اسم مطلوب', 'يرجى إدخال اسمك ليتم حفظه على جهازك.', true);
+            return;
+        }
+
+        const cleanPhone = phone.replace(/[^\d+]/g, '');
+        const originalBtnText = registerBtn ? registerBtn.innerText : 'إنشاء حساب جديد';
+        if (registerBtn) {
+            registerBtn.innerText = 'جارٍ الإنشاء...';
+            registerBtn.disabled = true;
+        }
+
+        db.ref('users/' + cleanPhone).once('value')
+            .then(s => {
+                if (s.exists()) {
+                    if (registerBtn) {
+                        registerBtn.innerText = originalBtnText;
+                        registerBtn.disabled = false;
+                    }
+                    showConfirm('مسجل سابقاً', 'هذا الرقم موجود. استخدم تسجيل الدخول.', true);
+                    return;
+                }
+
+                const newUser = {
+                    phone: cleanPhone,
+                    // We store ONLY the number and basic info in DB as requested
+                    // The name is kept for the user locally
+                    img: 'https://b.top4top.io/p_3771kqoax0.png',
+                    status: 'متصل الآن',
+                    createdAt: Date.now()
+                };
+
+                return db.ref('users/' + cleanPhone).set(newUser)
+                    .then(() => {
+                        if (registerBtn) {
+                            registerBtn.innerText = originalBtnText;
+                            registerBtn.disabled = false;
+                        }
+                        // Save name locally only
+                        my = { ...newUser, name: name };
+                        localStorage.setItem('we_user_v2', JSON.stringify(my));
+                        showConfirm('تم التسجيل', 'تم إنشاء حسابك بنجاح!', false);
+                        initApp();
+                    });
+            })
+            .catch(error => {
+                console.error('Register error:', error);
+                if (registerBtn) {
+                    registerBtn.innerText = originalBtnText;
+                    registerBtn.disabled = false;
+                }
+                showConfirm('خطأ', 'حدث خطأ أثناء التسجيل. حاول ثانية.', true);
+            });
     }
 
     function showConfirm(title, sub, isRed = true) {
@@ -701,6 +1223,36 @@
             m.style.display = 'flex';
             yBtn.onclick = () => { m.style.display='none'; r(true); };
             document.getElementById('confirm-no-btn').onclick = () => { m.style.display='none'; r(false); };
+        });
+    }
+
+    function addLongPressListener(element, callback, duration = 600) {
+        let timer = null;
+        let longPressed = false;
+        const start = event => {
+            if (event.pointerType === 'mouse' && event.button !== 0) return;
+            longPressed = false;
+            timer = window.setTimeout(() => {
+                longPressed = true;
+                callback(event);
+            }, duration);
+        };
+        const cancel = () => {
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+        };
+        element.addEventListener('pointerdown', start);
+        element.addEventListener('pointerup', cancel);
+        element.addEventListener('pointerleave', cancel);
+        element.addEventListener('pointercancel', cancel);
+        element.addEventListener('click', event => {
+            if (longPressed) {
+                event.preventDefault();
+                event.stopPropagation();
+                longPressed = false;
+            }
         });
     }
 
@@ -730,6 +1282,7 @@
     function showOnlyContacts() {
         hideAllOverlays();
         document.getElementById('contacts-screen').classList.add('show');
+        loadMyContacts();
     }
 
     function toggleContacts(show) {
@@ -819,22 +1372,30 @@
             return;
         }
 
-        db.ref('users/' + phone).once('value', s => {
+        const cleanPhone = phone.replace(/[^\d+]/g, '');
+
+        db.ref('users/' + cleanPhone).once('value', s => {
             if (s.exists()) {
-                if (!myFriends.some(c => c.phone === phone)) {
-                    myFriends.push({ phone, name: contactName });
+                if (!myFriends.some(c => c.phone === cleanPhone)) {
+                    myFriends.push({ phone: cleanPhone, name: contactName });
                     localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
                     loadMyContacts();
                     showConfirm('تمت الإضافة', 'تمت إضافة ' + contactName + ' لجهات اتصالك.', false);
                     document.getElementById('nc-name').value = '';
                     document.getElementById('nc-phone').value = '';
                 } else {
-                    showConfirm('موجود مسبقاً', 'هذا الرقم مضاف بالفعل.', false);
+                    showConfirm('موجود مسبقاً', 'هذا الرقم مضاف بالفعل في قائمتك.', false);
                 }
             } else {
-                showConfirm('غير موجود', 'هذا الرقم لا يستخدم We App حالياً.', true);
+                showConfirm('غير مشترك', 'هذا الرقم لا يستخدم We App حالياً. يمكنك دعوته لاستخدام التطبيق!', true);
             }
         });
+    }
+
+    function getDisplayName(phone, fallback) {
+        if (!phone) return fallback || '';
+        const friend = myFriends.find(f => f.phone === phone);
+        return friend ? friend.name : (fallback || phone);
     }
 
     function loadMyContacts() {
@@ -847,43 +1408,95 @@
             return;
         }
         myFriends.forEach(contact => {
+            const row = document.createElement('div');
+            row.className = 'user-row';
+            row.id = 'contact-row-' + contact.phone.replace(/[^\d]/g, '');
+
+            const info = document.createElement('div');
+            info.className = 'user-info';
+            // Start with local name
+            info.addEventListener('click', () => startChat({ phone: contact.phone, name: contact.name, img: 'https://b.top4top.io/p_3771kqoax0.png' }));
+
+            const avatar = document.createElement('img');
+            avatar.src = 'https://b.top4top.io/p_3771kqoax0.png'; // Default
+            avatar.className = 'profile-avatar-clickable';
+
+            const meta = document.createElement('div');
+            meta.style.flex = '1';
+            const nameEl = document.createElement('b');
+            nameEl.textContent = contact.name;
+            const phoneEl = document.createElement('small');
+            phoneEl.textContent = contact.phone;
+            meta.append(nameEl, document.createElement('br'), phoneEl);
+
+            const actions = document.createElement('div');
+            actions.style.display = 'flex';
+            actions.style.gap = '10px';
+
+            const editBtn = document.createElement('div');
+            editBtn.className = 'delete-btn';
+            editBtn.style.color = '#3b82f6';
+            editBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+            editBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                editContactName(contact.phone, contact.name);
+            });
+
+            const deleteBtn = document.createElement('div');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = `
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 7H18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8 7V18C8 18.5304 8.21071 19.0391 8.58579 19.4142C8.96086 19.7893 9.46957 20 10 20H14C14.5304 20 15.0391 19.7893 15.4142 19.4142C15.7893 19.0391 16 18.5304 16 18V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M10 11V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 11V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 7V4H15V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            `;
+            deleteBtn.addEventListener('click', e => {
+                e.stopPropagation();
+                removeContact(contact.phone, contact.name);
+            });
+
+            actions.append(editBtn, deleteBtn);
+            info.appendChild(avatar);
+            info.appendChild(meta);
+            row.appendChild(info);
+            row.appendChild(actions);
+            l.appendChild(row);
+
+            // Fetch real user data from Firebase to update avatar and status
             db.ref('users/' + contact.phone).once('value', s => {
                 const u = s.val();
                 if (u) {
-                    const row = document.createElement('div');
-                    row.className = 'user-row';
-
-                    const info = document.createElement('div');
-                    info.className = 'user-info';
-                    info.addEventListener('click', () => startChat({ ...u, name: contact.name }));
-
-                    const avatar = document.createElement('img');
                     avatar.src = u.img;
-
-                    const meta = document.createElement('div');
-                    meta.style.flex = '1';
-                    const nameEl = document.createElement('b');
-                    nameEl.textContent = contact.name || u.name;
-                    const phoneEl = document.createElement('small');
-                    phoneEl.textContent = contact.phone;
-                    meta.append(nameEl, document.createElement('br'), phoneEl);
-
-                    const deleteBtn = document.createElement('div');
-                    deleteBtn.className = 'delete-btn';
-                    deleteBtn.textContent = '🗑️';
-                    deleteBtn.addEventListener('click', e => {
+                    avatar.addEventListener('click', e => {
                         e.stopPropagation();
-                        removeContact(contact.phone, contact.name);
+                        openImageViewer(u.img, contact.name || 'صورة الملف الشخصي');
                     });
-
-                    info.appendChild(avatar);
-                    info.appendChild(meta);
-                    row.appendChild(info);
-                    row.appendChild(deleteBtn);
-                    l.appendChild(row);
+                    info.onclick = () => startChat({ ...u, name: contact.name });
                 }
             });
         });
+    }
+
+    async function editContactName(phone, currentName) {
+        // Simple prompt for editing name
+        const newName = prompt("أدخل الاسم الجديد لجهة الاتصال:", currentName);
+        if (newName !== null && newName.trim() !== "") {
+            const index = myFriends.findIndex(f => f.phone === phone);
+            if (index !== -1) {
+                myFriends[index].name = newName.trim();
+                localStorage.setItem('my_friends_list', JSON.stringify(myFriends));
+                loadMyContacts();
+                loadRecentChats(); // Update recent chats list display too
+            }
+        }
     }
 
     async function removeContact(phone, name) {
@@ -895,61 +1508,120 @@
     }
 
     function loadRecentChats() {
-        db.ref('chats').on('value', s => {
+        const chatsRef = db.ref('chats');
+        chatsRef.off(); // Remove existing listeners to prevent duplicates
+        chatsRef.on('value', async s => {
             const list = document.getElementById('recent-list');
-            list.innerHTML = '';
+            const chatEntries = [];
+            
+            // 1. Collect all chat data
+            const promises = [];
             s.forEach(child => {
                 const id = child.key;
-                if (id.includes(my.phone) && !deletedChats.includes(id)) {
+                if (id.includes(my.phone)) {
                     const parts = id.split('_');
                     const pNum = parts.length === 2 ? (parts[0] === my.phone ? parts[1] : parts[0]) : id.replace(my.phone, '').replace('_', '');
-                    db.ref('users/' + pNum).once('value', uS => {
+                    
+                    const promise = db.ref('users/' + pNum).once('value').then(uS => {
                         const u = uS.val();
                         const chatData = child.val() || {};
-                        const msgs = Object.values(chatData);
-                        if (u && msgs.length) {
-                            const last = msgs[msgs.length - 1];
-                            const row = document.createElement('div');
-                            row.className = 'user-row';
+                        const entries = Object.entries(chatData);
+                        const deletionTime = deletedChats[id] || 0;
+                        const filteredEntries = entries.filter(entry => {
+                            const m = entry[1];
+                            return (m.timestamp || 0) > deletionTime || !m.timestamp;
+                        });
 
-                            const info = document.createElement('div');
-                            info.className = 'user-info';
-                            info.addEventListener('click', () => openChat(u));
-
-                            const avatar = document.createElement('img');
-                            avatar.src = u.img;
-
-                            const meta = document.createElement('div');
-                            meta.style.flex = '1';
-                            const nameEl = document.createElement('b');
-                            nameEl.textContent = u.name;
-                            const lastEl = document.createElement('small');
-                            lastEl.textContent = last.t || '';
-                            meta.append(nameEl, document.createElement('br'), lastEl);
-
-                            const deleteBtn = document.createElement('div');
-                            deleteBtn.className = 'delete-btn';
-                            deleteBtn.textContent = '🗑️';
-                            deleteBtn.addEventListener('click', e => {
-                                e.stopPropagation();
-                                hideChat(id);
-                            });
-
-                            const isUnread = last.u !== my.phone && msgs.length > getChatSeenCount(id);
-                            if (isUnread) {
-                                const badge = document.createElement('span');
-                                badge.className = 'unread-pill';
-                                row.appendChild(badge);
-                            }
-
-                            info.appendChild(avatar);
-                            info.appendChild(meta);
-                            row.appendChild(info);
-                            row.appendChild(deleteBtn);
-                            list.appendChild(row);
+                        if (u && filteredEntries.length) {
+                            const lastEntry = filteredEntries[filteredEntries.length - 1];
+                            return {
+                                id,
+                                pNum,
+                                user: u,
+                                last: lastEntry[1],
+                                lastKey: lastEntry[0],
+                                count: filteredEntries.length,
+                                timestamp: lastEntry[1].timestamp || 0
+                            };
                         }
+                        return null;
                     });
+                    promises.push(promise);
                 }
+            });
+
+            // 2. Wait for all user data and filter
+            const results = await Promise.all(promises);
+            const validChats = results.filter(r => r !== null);
+
+            // 3. Sort by timestamp (newest first)
+            validChats.sort((a, b) => b.timestamp - a.timestamp);
+
+            // 4. Render all at once
+            list.innerHTML = '';
+            validChats.forEach(chat => {
+                const { id, pNum, user, last, lastKey, count } = chat;
+                const displayName = getDisplayName(pNum, user.name);
+                const row = document.createElement('div');
+                row.className = 'user-row';
+
+                const info = document.createElement('div');
+                info.className = 'user-info';
+                info.addEventListener('click', () => openChat({ ...user, phone: pNum, name: displayName }));
+
+                const avatar = document.createElement('img');
+                avatar.src = user.img;
+                avatar.className = 'profile-avatar-clickable';
+                avatar.addEventListener('click', e => {
+                    e.stopPropagation();
+                    openImageViewer(user.img, displayName || 'صورة الملف الشخصي');
+                });
+
+                const meta = document.createElement('div');
+                meta.style.flex = '1';
+                const nameEl = document.createElement('b');
+                nameEl.textContent = displayName;
+                const lastEl = document.createElement('small');
+                lastEl.textContent = last.t ? last.t : last.img ? 'صورة' : last.audio ? 'رسالة صوتية' : 'رسالة جديدة';
+                meta.append(nameEl, document.createElement('br'), lastEl);
+
+                const deleteBtn = document.createElement('div');
+                deleteBtn.className = 'delete-btn delete-chat-btn';
+                deleteBtn.innerHTML = `
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 7H18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 7V18C8 18.5304 8.21071 19.0391 8.58579 19.4142C8.96086 19.7893 9.46957 20 10 20H14C14.5304 20 15.0391 19.7893 15.4142 19.4142C15.7893 19.0391 16 18.5304 16 18V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M10 11V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 11V16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 7V4H15V7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                `;
+                deleteBtn.addEventListener('click', e => {
+                    e.stopPropagation();
+                    hideChat(id);
+                });
+
+                const isUnread = last.u !== my.phone && count > getChatSeenCount(id);
+                if (isUnread) {
+                    const badge = document.createElement('span');
+                    badge.className = 'unread-pill';
+                    row.appendChild(badge);
+                }
+
+                if (lastKey) {
+                    const currentChatId = peer ? [my.phone, peer.phone].sort().join('_') : null;
+                    if (last.u !== my.phone && id !== currentChatId && lastNotifiedMessageKeys[id] && lastKey !== lastNotifiedMessageKeys[id]) {
+                        const preview = last.t ? last.t : last.img ? 'صورة جديدة' : last.audio ? 'رسالة صوتية جديدة' : 'رسالة جديدة';
+                        showDesktopNotification('رسالة جديدة من ' + displayName, preview, user.img);
+                    }
+                    lastNotifiedMessageKeys[id] = lastKey;
+                }
+
+                info.appendChild(avatar);
+                info.appendChild(meta);
+                row.appendChild(info);
+                row.appendChild(deleteBtn);
+                list.appendChild(row);
             });
         });
     }
@@ -958,48 +1630,393 @@
 
     function openChat(u) {
         peer = u;
+        const displayName = getDisplayName(u.phone, u.name);
         const id = [my.phone, peer.phone].sort().join('_');
-        if (deletedChats.includes(id)) {
-            deletedChats = deletedChats.filter(x => x !== id);
-            localStorage.setItem('deleted_chats', JSON.stringify(deletedChats));
-        }
+        
         window.history.pushState({ page: 'chat', peerPhone: u.phone }, '', location.href);
         document.getElementById('chat-ui').style.display = 'flex';
-        document.getElementById('c-avatar').src = u.img;
-        document.getElementById('c-name').innerText = u.name;
+        const cAvatar = document.getElementById('c-avatar');
+        cAvatar.src = u.img;
+        cAvatar.classList.add('profile-avatar-clickable');
+        cAvatar.onclick = () => openImageViewer(u.img, displayName || 'صورة الملف الشخصي');
+        document.getElementById('c-name').innerText = displayName;
         document.getElementById('chat-status').innerText = u.status || 'متصل الآن';
         document.getElementById('c-input').value = '';
         updateInputMode();
         toggleEmojiPanel(false);
+        watchCallSession(id);
+
+        const deletionTime = deletedChats[id] || 0;
+
         db.ref('chats/' + id).on('value', s => {
             const box = document.getElementById('c-msgs');
             box.innerHTML = '';
-            const msgs = [];
+            const allMsgs = [];
             s.forEach(mS => {
                 const m = mS.val();
-                msgs.push(m);
-                const time = m.ts || '';
-                const isRead = m.u === my.phone && m.r === true;
-                const timeClass = isRead ? 'bubble-time read' : 'bubble-time';
-                const meta = m.u === my.phone
-                    ? `<span class="${timeClass}">${time} ✓✓</span>`
-                    : `<span class="${timeClass}">${time}</span>`;
-                let content = '';
-                if (m.audio) {
-                    content += `<audio controls src="${m.audio}" style="width:100%; margin-bottom:8px; border-radius: 14px;"></audio>`;
-                }
-                if (m.t) {
+                if ((m.timestamp || 0) > deletionTime || !m.timestamp) {
+                    allMsgs.push(m);
+                    const msgKey = mS.key;
+                    const time = m.ts || '';
+                    const isRead = m.u === my.phone && m.r === true;
+                    const timeClass = isRead ? 'bubble-time read' : 'bubble-time';
+                    const meta = m.u === my.phone
+                        ? `<span class="${timeClass}">${time} ✓✓</span>`
+                        : `<span class="${timeClass}">${time}</span>`;
+                    let content = '';
+                if (m.img) {
+                    content += `
+                        <div class="image-message">
+                            <img class="chat-image" src="${m.img}" alt="صورة" />
+                        </div>
+                    `;
+                } else if (m.audio) {
+                    content += `
+                        <div class="audio-message">
+                            <div class="audio-body">
+                                <span class="audio-icon">🎙️</span>
+                                <audio controls class="audio-player" src="${m.audio}"></audio>
+                            </div>
+                        </div>
+                    `;
+                } else if (m.t) {
                     content += `<span>${m.t}</span>`;
                 }
-                if (!content) {
-                    content = '<span>رسالة صوتية</span>';
+                
+                if (!content) return; // Skip invalid messages
+                    box.innerHTML += `<div class="bubble ${m.u === my.phone ? 'me' : 'them'} ${m.audio ? 'audio-bubble' : ''} ${m.img ? 'image-bubble' : ''}" data-msg-id="${msgKey}" data-msg-user="${m.u}">${content}${meta}</div>`;
+                    const bubbleEl = box.lastElementChild;
+                    if (bubbleEl) {
+                        const imgEl = bubbleEl.querySelector('.chat-image');
+                        const deleteListener = async () => {
+                            if (bubbleEl.dataset.msgUser !== my.phone) {
+                                showConfirm('غير مسموح', 'يمكنك حذف رسائلك فقط.', true);
+                                return;
+                            }
+                            if (await showConfirm('حذف الرسالة؟', 'هل تريد حذف هذه الرسالة نهائياً؟')) {
+                                deleteChatMessage(id, msgKey);
+                            }
+                        };
+                        if (imgEl) {
+                            imgEl.addEventListener('click', () => openImageViewer(m.img, 'صورة المحادثة'));
+                            addLongPressListener(imgEl, deleteListener);
+                        } else {
+                            addLongPressListener(bubbleEl, deleteListener);
+                        }
+                    }
                 }
-                box.innerHTML += `<div class="bubble ${m.u === my.phone ? 'me' : 'them'}">${content}${meta}</div>`;
             });
-            updateChatSeenCount(id, msgs.length);
+            updateChatSeenCount(id, allMsgs.length);
             markChatMessagesAsRead(id);
             box.scrollTop = box.scrollHeight;
         });
+    }
+
+    function listenForIncomingCalls() {
+        if (!my || !my.phone) return;
+        if (incomingCallsRef) incomingCallsRef.off();
+        incomingCallsRef = db.ref('incoming_calls/' + my.phone);
+        incomingCallsRef.on('child_added', snapshot => {
+            const data = snapshot.val();
+            if (!data || callId) return;
+            pendingIncomingCall = { callId: snapshot.key, ...data };
+            callType = data.type;
+            isCaller = false;
+            callId = snapshot.key;
+            const displayName = getDisplayName(data.caller, data.callerName);
+            peer = { phone: data.caller, name: displayName, img: data.callerImg || '' };
+            showCallOverlay('incoming');
+            setCallStatus('مكالمة واردة من ' + displayName);
+        });
+        incomingCallsRef.on('child_removed', snapshot => {
+            if (pendingIncomingCall && pendingIncomingCall.callId === snapshot.key) {
+                hideCallOverlay();
+                pendingIncomingCall = null;
+            }
+        });
+    }
+
+    function watchCallSession(chatId) {
+        if (currentChatCallId === chatId) return;
+        currentChatCallId = chatId;
+        if (callRef) {
+            callRef.off();
+        }
+        callRef = db.ref('calls/' + chatId);
+        callRef.on('value', async snapshot => {
+            const data = snapshot.val();
+            if (!data) {
+                if (callConnection) {
+                    cleanupCall();
+                }
+                return;
+            }
+            if (!callConnection && !isCaller && data.offer && data.callee === my.phone && !pendingIncomingCall) {
+                pendingIncomingCall = { callId: chatId, ...data };
+                callType = data.type;
+                const displayName = getDisplayName(data.caller, data.callerName);
+                peer = { phone: data.caller, name: displayName, img: data.callerImg || '' };
+                showCallOverlay('incoming');
+                setCallStatus('مكالمة واردة من ' + displayName);
+            }
+            if (data.answer && callConnection && !callConnection.remoteDescription) {
+                await callConnection.setRemoteDescription(new RTCSessionDescription(data.answer));
+                updateCallStatus('متصل الآن');
+                showCallOverlay('connected');
+            }
+            if (data.status === 'ended') {
+                cleanupCall();
+            }
+        });
+        const oppositeRole = isCaller ? 'callee' : 'caller';
+        callRef.child('candidates/' + oppositeRole).on('child_added', snapshot => {
+            const candidate = snapshot.val();
+            if (!candidate || !callConnection) return;
+            callConnection.addIceCandidate(new RTCIceCandidate(candidate)).catch(console.error);
+        });
+    }
+
+    async function startCall(type) {
+        if (!peer || !peer.phone) {
+            showConfirm('لا توجد محادثة نشطة', 'افتح محادثة ثم حاول المكالمة.', true);
+            return;
+        }
+        if (callConnection || callId) {
+            showConfirm('يوجد مكالمة سارية', 'أنهِ المكالمة الحالية أولاً ثم جرب مرة أخرى.', true);
+            return;
+        }
+        callType = type;
+        isCaller = true;
+        callId = [my.phone, peer.phone].sort().join('_');
+        watchCallSession(callId);
+        await startLocalStream({ audio: true, video: type === 'video' });
+        createCallConnection();
+        try {
+            const offer = await callConnection.createOffer();
+            await callConnection.setLocalDescription(offer);
+            const displayName = getDisplayName(peer.phone, peer.name);
+            const payload = {
+                caller: my.phone,
+                callee: peer.phone,
+                type,
+                status: 'ringing',
+                offer: offer.toJSON(),
+                callerName: my.name || my.phone,
+                callerImg: my.img || '',
+                createdAt: Date.now()
+            };
+            await callRef.set(payload);
+            await db.ref('incoming_calls/' + peer.phone + '/' + callId).set({
+                chatId: callId,
+                caller: my.phone,
+                callee: peer.phone,
+                type,
+                callerName: my.name || my.phone,
+                callerImg: my.img || '',
+                offer: offer.toJSON()
+            });
+            showCallOverlay('calling');
+            setCallStatus('جارٍ الاتصال...');
+        } catch (error) {
+            console.error('خطأ بدء المكالمة:', error);
+            cleanupCall();
+            showConfirm('فشل المكالمة', 'لم نتمكن من بدء المكالمة. حاول مرة أخرى.', true);
+        }
+    }
+
+    async function acceptIncomingCall() {
+        if (!pendingIncomingCall) return;
+        const incoming = pendingIncomingCall;
+        pendingIncomingCall = null;
+        callId = incoming.callId;
+        callType = incoming.type;
+        isCaller = false;
+        watchCallSession(callId);
+        await startLocalStream({ audio: true, video: callType === 'video' });
+        createCallConnection();
+        try {
+            const remoteDesc = new RTCSessionDescription(incoming.offer);
+            await callConnection.setRemoteDescription(remoteDesc);
+            const answer = await callConnection.createAnswer();
+            await callConnection.setLocalDescription(answer);
+            await callRef.update({ answer: answer.toJSON(), status: 'in-call' });
+            await db.ref('incoming_calls/' + my.phone + '/' + callId).remove();
+            showCallOverlay('connected');
+            setCallStatus('متصل الآن');
+        } catch (error) {
+            console.error('خطأ قبول المكالمة:', error);
+            cleanupCall();
+            showConfirm('فشل القبول', 'لم نتمكن من قبول المكالمة.', true);
+        }
+    }
+
+    async function rejectIncomingCall() {
+        if (!pendingIncomingCall) return;
+        const incoming = pendingIncomingCall;
+        pendingIncomingCall = null;
+        await db.ref('incoming_calls/' + my.phone + '/' + incoming.callId).remove();
+        if (callRef) {
+            await callRef.remove();
+        }
+        hideCallOverlay();
+        cleanupCall();
+    }
+
+    function createCallConnection() {
+        if (callConnection) return;
+        callConnection = new RTCPeerConnection({
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' }
+            ]
+        });
+        if (callLocalStream) {
+            callLocalStream.getTracks().forEach(track => callConnection.addTrack(track, callLocalStream));
+        }
+        callConnection.ontrack = event => {
+            callRemoteStream = event.streams[0];
+            attachRemoteStream();
+        };
+        callConnection.onicecandidate = event => {
+            if (event.candidate && callRef) {
+                const branch = isCaller ? 'caller' : 'callee';
+                callRef.child('candidates/' + branch).push(event.candidate.toJSON());
+            }
+        };
+        callConnection.onconnectionstatechange = () => {
+            if (callConnection.connectionState === 'connected') {
+                updateCallStatus('متصل الآن');
+                showCallOverlay('connected');
+            }
+            if (['disconnected', 'failed', 'closed'].includes(callConnection.connectionState)) {
+                cleanupCall();
+            }
+        };
+        callConnection.oniceconnectionstatechange = () => {
+            if (['failed', 'disconnected', 'closed'].includes(callConnection.iceConnectionState)) {
+                cleanupCall();
+            }
+        };
+    }
+
+    async function startLocalStream(constraints) {
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showConfirm('التسجيل غير مدعوم', 'متصفحك لا يدعم الوصول إلى الميكروفون أو الكاميرا.', false);
+            return;
+        }
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
+            stopStream(callLocalStream);
+            callLocalStream = stream;
+            const localVideo = document.getElementById('local-video');
+            const localAudioPreview = document.getElementById('local-audio-preview');
+            if (constraints.video) {
+                localVideo.srcObject = stream;
+                localVideo.style.display = 'block';
+                localAudioPreview.style.display = 'none';
+            } else {
+                localVideo.srcObject = null;
+                localVideo.style.display = 'none';
+                localAudioPreview.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('خطأ فتح الميكروفون/الكاميرا:', error);
+            showConfirm('فشل الوصول', 'يرجى السماح بالوصول إلى الميكروفون والكاميرا.', true);
+        }
+    }
+
+    function attachRemoteStream() {
+        if (!callRemoteStream) return;
+        const remoteVideo = document.getElementById('remote-video');
+        const remoteAudio = document.getElementById('remote-audio');
+        const remotePlaceholder = document.getElementById('remote-placeholder');
+        if (callType === 'video') {
+            remoteVideo.srcObject = callRemoteStream;
+            remoteVideo.style.display = 'block';
+            remoteAudio.style.display = 'none';
+        } else {
+            remoteAudio.srcObject = callRemoteStream;
+            remoteVideo.style.display = 'none';
+            remoteAudio.style.display = 'block';
+        }
+        remotePlaceholder.style.display = 'none';
+    }
+
+    function setCallStatus(message) {
+        const statusEl = document.getElementById('call-status-label');
+        if (statusEl) statusEl.innerText = message;
+    }
+
+    function showCallOverlay(state) {
+        const overlay = document.getElementById('call-overlay');
+        const acceptBtn = document.getElementById('accept-call-btn');
+        const rejectBtn = document.getElementById('reject-call-btn');
+        const hangupBtn = document.getElementById('hangup-call-btn');
+        const typeLabel = document.getElementById('call-type-label');
+        const localAudioPreview = document.getElementById('local-audio-preview');
+        const localVideo = document.getElementById('local-video');
+
+        overlay.classList.add('show');
+        typeLabel.innerText = callType === 'video' ? 'مكالمة فيديو' : 'مكالمة صوتية';
+        acceptBtn.style.display = state === 'incoming' ? 'inline-flex' : 'none';
+        rejectBtn.style.display = state === 'incoming' ? 'inline-flex' : 'none';
+        hangupBtn.style.display = state === 'connected' || state === 'calling' ? 'inline-flex' : 'none';
+
+        if (callType === 'video') {
+            localAudioPreview.style.display = 'none';
+            localVideo.style.display = callLocalStream ? 'block' : 'none';
+        } else {
+            localVideo.style.display = 'none';
+            localAudioPreview.style.display = 'block';
+        }
+    }
+
+    function hideCallOverlay() {
+        const overlay = document.getElementById('call-overlay');
+        overlay.classList.remove('show');
+    }
+
+    async function endCall() {
+        if (callId) {
+            if (callRef) {
+                await callRef.remove().catch(() => {});
+            }
+            if (peer && peer.phone) {
+                const targetPhone = isCaller ? peer.phone : my.phone;
+                await db.ref('incoming_calls/' + targetPhone + '/' + callId).remove().catch(() => {});
+            }
+        }
+        cleanupCall();
+    }
+
+    function stopStream(stream) {
+        if (!stream) return;
+        stream.getTracks().forEach(track => track.stop());
+    }
+
+    function cleanupCall() {
+        hideCallOverlay();
+        if (callConnection) {
+            callConnection.close();
+            callConnection = null;
+        }
+        stopStream(callLocalStream);
+        callLocalStream = null;
+        callRemoteStream = null;
+        callType = null;
+        isCaller = false;
+        pendingIncomingCall = null;
+        currentChatCallId = null;
+        if (callRef) {
+            callRef.off();
+            callRef = null;
+        }
+        callId = null;
+        const remoteVideo = document.getElementById('remote-video');
+        const remoteAudio = document.getElementById('remote-audio');
+        const localVideo = document.getElementById('local-video');
+        if (remoteVideo) remoteVideo.srcObject = null;
+        if (remoteAudio) remoteAudio.srcObject = null;
+        if (localVideo) localVideo.srcObject = null;
     }
 
     function updateInputMode() {
@@ -1014,6 +2031,18 @@
             event.preventDefault();
             sendMsg();
         }
+    }
+
+    function addLongPressListener(element, callback) {
+        let timer;
+        const start = () => { timer = setTimeout(callback, 700); };
+        const cancel = () => { clearTimeout(timer); };
+        element.addEventListener('mousedown', start);
+        element.addEventListener('touchstart', start);
+        element.addEventListener('mouseup', cancel);
+        element.addEventListener('mouseleave', cancel);
+        element.addEventListener('touchend', cancel);
+        element.addEventListener('touchcancel', cancel);
     }
 
     function toggleEmojiPanel(force) {
@@ -1043,89 +2072,295 @@
     function handleChatImage(event) {
         const file = event.target.files[0];
         if (!file) return;
-        showConfirm('إضافة صورة', 'تم اختيار صورة للمحادثة.', false);
+        if (!file.type.startsWith('image/')) {
+            showConfirm('نوع غير مسموح', 'يرجى اختيار صورة فقط.', true);
+            event.target.value = '';
+            return;
+        }
+
+        // Show a temporary loading indicator if possible
+        const originalInput = document.getElementById('c-input').placeholder;
+        document.getElementById('c-input').placeholder = 'جارٍ معالجة الصورة...';
+
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onload = () => {
+                // VERY AGGRESSIVE COMPRESSION for WebView stability
+                const canvas = document.createElement('canvas');
+                let width = img.width;
+                let height = img.height;
+                const maxDim = 600; // Smaller max dimension
+
+                if (width > height) {
+                    if (width > maxDim) {
+                        height *= maxDim / width;
+                        width = maxDim;
+                    }
+                } else {
+                    if (height > maxDim) {
+                        width *= maxDim / height;
+                        height = maxDim;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // JPEG at 0.6 quality is much smaller and safer
+                try {
+                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+                    sendImageMsg(compressedDataUrl);
+                    document.getElementById('c-input').placeholder = originalInput;
+                } catch (err) {
+                    console.error('Canvas export error:', err);
+                    showConfirm('خطأ ذاكرة', 'الصورة كبيرة جداً على ذاكرة التطبيق. حاول تصوير صورة جديدة أو اختيار صورة أصغر.', true);
+                    document.getElementById('c-input').placeholder = originalInput;
+                }
+            };
+            img.onerror = () => {
+                showConfirm('خطأ', 'لم نتمكن من قراءة الصورة.', true);
+                document.getElementById('c-input').placeholder = originalInput;
+            };
+            img.src = e.target.result;
+        };
+        reader.onerror = () => {
+            showConfirm('خطأ', 'حدث خطأ أثناء تحميل الملف.', true);
+            document.getElementById('c-input').placeholder = originalInput;
+        };
+        reader.readAsDataURL(file);
         event.target.value = '';
+    }
+
+    function sendImageMsg(imageDataUrl) {
+        if (!peer) return;
+        const id = [my.phone, peer.phone].sort().join('_');
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const message = { u: my.phone, img: imageDataUrl, ts: time, r: false, timestamp: Date.now() };
+        appendLocalMessageToChat(message);
+        db.ref('chats/' + id).push(message);
+    }
+
+    function openImageViewer(src, caption = '') {
+        const viewer = document.getElementById('image-viewer');
+        const img = document.getElementById('viewer-img');
+        const captionEl = document.getElementById('viewer-caption');
+        if (!src) return;
+        img.src = src;
+        captionEl.innerText = caption || '';
+        viewer.classList.add('show');
+    }
+
+    function getCurrentChatId() {
+        return peer ? [my.phone, peer.phone].sort().join('_') : null;
+    }
+
+    function appendLocalMessageToChat(msg) {
+        const box = document.getElementById('c-msgs');
+        if (!box || !peer) return;
+        const time = msg.ts || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        let content = '';
+        if (msg.img) {
+            content += `
+                <div class="image-message">
+                    <img class="chat-image" src="${msg.img}" alt="صورة" />
+                </div>
+            `;
+        } else if (msg.audio) {
+            content += `
+                <div class="audio-message">
+                    <div class="audio-body">
+                        <span class="audio-icon">🎙️</span>
+                        <audio controls class="audio-player" src="${msg.audio}"></audio>
+                    </div>
+                </div>
+            `;
+        } else if (msg.t) {
+            content += `<span>${msg.t}</span>`;
+        }
+        
+        if (!content) return; // Don't show empty fallback
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble me' + (msg.audio ? ' audio-bubble' : '') + (msg.img ? ' image-bubble' : '');
+        bubble.innerHTML = content + `<span class="bubble-time read">${time} ✓</span>`;
+        box.appendChild(bubble);
+        box.scrollTop = box.scrollHeight;
+    }
+
+    function closeImageViewer() {
+        const viewer = document.getElementById('image-viewer');
+        const img = document.getElementById('viewer-img');
+        viewer.classList.remove('show');
+        img.src = '';
     }
 
     let mediaRecorder = null;
     let recordedChunks = [];
     let isRecording = false;
+    let recordingTimerInterval = null;
+    let recordingStartTime = 0;
 
     function startVoiceRecording() {
         const btn = document.getElementById('voice-btn');
+        const input = document.getElementById('c-input');
+        const recordingStatus = document.getElementById('recording-status');
+        const cameraBtn = document.getElementById('camera-btn');
+        const timerEl = document.getElementById('recording-timer');
+        
         const micIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14ZM19 11C19 14.31 16.31 17 13 17H11C7.69 17 5 14.31 5 11H3C3 15.42 6.58 19 11 19V22H13V19C17.42 19 21 15.42 21 11H19Z" fill="currentColor"/></svg>`;
         const stopIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>`;
 
-        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            showConfirm('التسجيل غير مدعوم', 'متصفحك لا يدعم الوصول إلى الميكروفون.', false);
-            return;
-        }
-
-        if (typeof MediaRecorder === 'undefined') {
-            showConfirm('التسجيل غير مدعوم', 'متصفحك لا يدعم تسجيل الصوت عبر MediaRecorder.', false);
-            return;
-        }
-
-        if (!window.isSecureContext && !location.protocol.startsWith('file')) {
-            showConfirm('لا يوجد اتصال آمن', 'يجب فتح التطبيق عبر HTTPS أو localhost لتعمل ميزة التسجيل الصوتي.', false);
-            return;
-        }
-
         if (isRecording) {
-            mediaRecorder?.stop();
-            isRecording = false;
-            btn.classList.remove('recording');
-            btn.innerHTML = micIcon;
+            stopAndSendRecording();
             return;
         }
 
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                try {
-                    mediaRecorder = new MediaRecorder(stream);
-                } catch (mediaError) {
-                    stream.getTracks().forEach(track => track.stop());
-                    showConfirm('خطأ تسجيل الصوت', 'لم نتمكن من بدء التسجيل. جرب متصفحًا أحدث مثل Chrome أو Edge.', false);
-                    console.error('MediaRecorder init failed:', mediaError);
-                    return;
+        // 1. Unified getUserMedia for all Android versions
+        const getMedia = (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) ? 
+                         navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices) : 
+                         (navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia);
+
+        if (!getMedia) {
+            showConfirm('غير مدعوم', 'هذا الهاتف قديم جداً ولا يدعم تسجيل الصوت من المتصفح.', true);
+            return;
+        }
+
+        // 2. Check Protocol (Crucial for AppCreator24)
+        const isSecure = location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+
+        // Show Loading state
+        btn.innerHTML = '...';
+        btn.disabled = true;
+
+        const handleStream = (stream) => {
+            btn.disabled = false;
+            
+            if (!stream || !stream.active) {
+                showConfirm('خطأ في الميكروفون', 'الميكروفون لا يرسل بيانات. تأكد من إغلاق أي تطبيق آخر يستخدمه.', true);
+                return;
+            }
+
+            const RecorderConstructor = window.MediaRecorder || window.webkitMediaRecorder;
+            if (!RecorderConstructor) {
+                stream.getTracks().forEach(t => t.stop());
+                resetRecordingUI();
+                showConfirm('خطأ نظام', 'نظام MediaRecorder غير متاح. سيتم استخدام المسجل البديل.', true).then(() => {
+                    document.getElementById('chat-audio-input').click();
+                });
+                return;
+            }
+
+            try {
+                // Optimized types for Android WebView & AppCreator24
+                const types = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm', 'audio/aac', ''];
+                let options = {};
+                for (let type of types) {
+                    if (type === '' || (RecorderConstructor.isTypeSupported && RecorderConstructor.isTypeSupported(type))) {
+                        if (type !== '') options.mimeType = type;
+                        break;
+                    }
                 }
 
+                mediaRecorder = new RecorderConstructor(stream, options);
                 recordedChunks = [];
+
                 mediaRecorder.ondataavailable = e => {
-                    if (e.data && e.data.size > 0) {
-                        recordedChunks.push(e.data);
-                    }
+                    if (e.data && e.data.size > 0) recordedChunks.push(e.data);
                 };
+
                 mediaRecorder.onstop = async () => {
                     stream.getTracks().forEach(track => track.stop());
-                    if (recordedChunks.length === 0) {
-                        btn.classList.remove('recording');
-                        btn.innerHTML = micIcon;
-                        return;
+                    if (recordedChunks.length > 0) {
+                        const blob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+                        const audioUrl = await blobToDataURL(blob);
+                        if (audioUrl) sendAudioMsg(audioUrl);
+                    } else {
+                        showConfirm('تنبيه', 'لم يتم تسجيل أي صوت. يرجى المحاولة مرة أخرى.', true);
                     }
-                    const blob = new Blob(recordedChunks, { type: 'audio/webm' });
-                    const audioUrl = await blobToDataURL(blob);
-                    sendAudioMsg(audioUrl);
-                    btn.classList.remove('recording');
-                    btn.innerHTML = micIcon;
+                    resetRecordingUI();
                 };
-                mediaRecorder.start();
+
+                mediaRecorder.start(500); // 500ms for WebView stability
                 isRecording = true;
+                
+                input.style.display = 'none';
+                recordingStatus.style.display = 'flex';
+                cameraBtn.style.display = 'none';
                 btn.classList.add('recording');
                 btn.innerHTML = stopIcon;
-            })
-            .catch(error => {
-                btn.classList.remove('recording');
-                btn.innerHTML = micIcon;
-                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
-                    showConfirm('تم رفض الميكروفون', 'يرجى السماح بالوصول إلى الميكروفون لتسجيل الصوت.', false);
-                } else if (error.name === 'NotFoundError' || error.name === 'NotReadableError') {
-                    showConfirm('الميكروفون غير متاح', 'لم يتم العثور على ميكروفون متصل أو يمكن الوصول إليه.', false);
+                
+                recordingStartTime = Date.now();
+                timerEl.innerText = '00:00';
+                recordingTimerInterval = setInterval(() => {
+                    const sec = Math.floor((Date.now() - recordingStartTime) / 1000);
+                    const m = Math.floor(sec / 60).toString().padStart(2, '0');
+                    const s = (sec % 60).toString().padStart(2, '0');
+                    timerEl.innerText = `${m}:${s}`;
+                }, 1000);
+
+            } catch (e) {
+                console.error('Recorder Init Error:', e);
+                stream.getTracks().forEach(t => t.stop());
+                resetRecordingUI();
+                showConfirm('بدء المسجل', 'فشل تشغيل المسجل الداخلي. هل تريد استخدام مسجل الهاتف؟', true).then(res => {
+                    if (res) document.getElementById('chat-audio-input').click();
+                });
+            }
+        };
+
+        const handleError = (err) => {
+            btn.disabled = false;
+            btn.innerHTML = micIcon;
+            console.error('Mic Access Error:', err);
+            
+            if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError' || err.name === 'SecurityError') {
+                if (!isSecure) {
+                    showConfirm('رابط غير آمن', 'نظام أندرويد يمنع الميكروفون في الروابط غير المشفرة (HTTP). هل تريد استخدام مسجل الهاتف كبديل؟', true).then(res => {
+                        if (res) document.getElementById('chat-audio-input').click();
+                    });
                 } else {
-                    showConfirm('خطأ تسجيل الصوت', 'حدث خطأ أثناء تهيئة الميكروفون. جرب إعادة تحميل الصفحة أو استخدم متصفحًا آخر.', false);
+                    showConfirm('إذن الميكروفون', 'يجب السماح للمتصفح بالوصول للميكروفون من إعدادات الهاتف.', true);
                 }
-                console.error('Voice recording error:', error);
-            });
+            } else {
+                showConfirm('فشل الوصول', 'حدث خطأ: ' + err.name + '. هل تريد استخدام مسجل الهاتف؟', true).then(res => {
+                    if (res) document.getElementById('chat-audio-input').click();
+                });
+            }
+        };
+
+        // Execute Request
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+            navigator.mediaDevices.getUserMedia({ audio: true }).then(handleStream).catch(handleError);
+        } else {
+            getMedia.call(navigator, { audio: true }, handleStream, handleError);
+        }
+    }
+
+    function stopAndSendRecording() {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+        }
+        isRecording = false;
+        clearInterval(recordingTimerInterval);
+    }
+
+    function resetRecordingUI() {
+        const btn = document.getElementById('voice-btn');
+        const input = document.getElementById('c-input');
+        const recordingStatus = document.getElementById('recording-status');
+        const cameraBtn = document.getElementById('camera-btn');
+        const micIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14ZM19 11C19 14.31 16.31 17 13 17H11C7.69 17 5 14.31 5 11H3C3 15.42 6.58 19 11 19V22H13V19C17.42 19 21 15.42 21 11H19Z" fill="currentColor"/></svg>`;
+        
+        btn.classList.remove('recording');
+        btn.innerHTML = micIcon;
+        input.style.display = 'block';
+        recordingStatus.style.display = 'none';
+        cameraBtn.style.display = 'block';
+        isRecording = false;
+        clearInterval(recordingTimerInterval);
     }
 
     function blobToDataURL(blob) {
@@ -1140,7 +2375,27 @@
         if (!peer) return;
         const id = [my.phone, peer.phone].sort().join('_');
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        db.ref('chats/' + id).push({ u: my.phone, audio: audioUrl, ts: time, r: false });
+        const message = { u: my.phone, audio: audioUrl, ts: time, r: false, timestamp: Date.now() };
+        appendLocalMessageToChat(message);
+        db.ref('chats/' + id).push(message);
+    }
+
+    function handleSystemAudio(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const audioUrl = e.target.result;
+            sendAudioMsg(audioUrl);
+        };
+        reader.readAsDataURL(file);
+        event.target.value = ''; // Reset for next use
+    }
+
+    async function deleteChatMessage(chatId, messageId) {
+        if (!chatId || !messageId) return;
+        await db.ref('chats/' + chatId + '/' + messageId).remove().catch(console.error);
     }
 
     function sendMsg() {
@@ -1149,7 +2404,9 @@
         if (!txt || !peer) return;
         const id = [my.phone, peer.phone].sort().join('_');
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        db.ref('chats/' + id).push({ u: my.phone, t: txt, ts: time, r: false });
+        const message = { u: my.phone, t: txt, ts: time, r: false, timestamp: Date.now() };
+        appendLocalMessageToChat(message);
+        db.ref('chats/' + id).push(message);
         input.value = '';
         updateInputMode();
         toggleEmojiPanel(false);
@@ -1163,9 +2420,9 @@
     }
 
     async function hideChat(id) {
-        if (await showConfirm("حذف المحادثة؟", "سيتم حذفها من شاشتك فقط.")) {
-            deletedChats.push(id);
-            localStorage.setItem('deleted_chats', JSON.stringify(deletedChats));
+        if (await showConfirm("حذف المحادثة؟", "سيتم مسح محتواها من جهازك ولن تظهر مرة أخرى حتى تصلك رسالة جديدة.")) {
+            deletedChats[id] = Date.now();
+            localStorage.setItem('deleted_chats_v2', JSON.stringify(deletedChats));
             loadRecentChats();
         }
     }
