@@ -611,18 +611,19 @@
         }
         .chat-input-area {
             padding: 10px 12px;
-            background: transparent;
+            background: #f0f2f5;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
             border-top: 1px solid rgba(15, 23, 42, 0.08);
             position: sticky;
             bottom: 0;
             z-index: 1;
+            direction: rtl;
         }
         .mic-btn {
-            width: 54px;
-            height: 54px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             border: none;
             background: var(--app-theme);
@@ -630,19 +631,28 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 12px 24px rgba(37, 211, 102, 0.22);
+            box-shadow: 0 4px 12px rgba(37, 211, 102, 0.22);
             cursor: pointer;
+            flex-shrink: 0;
+        }
+        .send-btn-fixed {
+            background: var(--app-theme);
+            color: white;
+            order: 1; /* Force to the right in RTL */
+        }
+        #voice-btn {
+            order: 3; /* Force to the left in RTL */
         }
         .chat-input-pill {
             flex: 1;
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 999px;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 24px;
             background: white;
-            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
-            border: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            order: 2;
         }
         .chat-input-pill .camera-btn,
         .chat-input-pill .attach-btn,
@@ -984,25 +994,13 @@
         <button type="button" onclick="insertEmoji('😎')">😎</button>
     </div>
     <div class="chat-input-area">
-        <button type="button" id="voice-btn" class="mic-btn" onclick="startVoiceRecording()">
+        <button type="button" id="send-btn" class="mic-btn send-btn-fixed" onclick="sendMsg()" style="display:flex; background: var(--app-theme); color: white;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14Z" fill="currentColor"/>
-                <path d="M19 11C19 14.31 16.31 17 13 17H11C7.69 17 5 14.31 5 11H3C3 15.42 6.58 19 11 19V22H13V19C17.42 19 21 15.42 21 11H19Z" fill="currentColor"/>
+                <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/>
             </svg>
         </button>
 
         <div class="chat-input-pill" id="chat-input-pill">
-            <button type="button" id="send-btn" class="send-btn" onclick="sendMsg()" style="display:none">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/></svg>
-            </button>
-            
-            <button type="button" class="camera-btn" id="camera-btn" onclick="openAttachmentPopup()" title="إضافة صورة">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="currentColor"/>
-                    <path fill-rule="evenodd" clip-rule="evenodd" d="M7.13501 4.5684C7.54564 3.96105 8.23773 3.6 8.97645 3.6H15.0236C15.7623 3.6 16.4544 3.96105 16.865 4.5684L18.0673 6.3456H20.4C21.7255 6.3456 22.8 7.42011 22.8 8.7456V18.3456C22.8 19.6711 21.7255 20.7456 20.4 20.7456H3.6C2.27452 20.7456 1.2 19.6711 1.2 18.3456V8.7456C1.2 7.42011 2.27452 6.3456 3.6 6.3456H5.9327L7.13501 4.5684ZM12 17.4C14.9823 17.4 17.4 14.9823 17.4 12C17.4 9.01766 14.9823 6.6 12 6.6C9.01766 6.6 6.6 9.01766 6.6 12C6.6 14.9823 9.01766 17.4 12 17.4Z" fill="currentColor"/>
-                </svg>
-            </button>
-
             <input type="text" id="c-input" placeholder="مراسلة" oninput="updateInputMode()" onkeydown="handleChatInputKeydown(event)">
             
             <div id="recording-status" style="display:none; flex:1; align-items:center; gap:10px; color:#ef4444; font-weight:500; font-size:14px; padding: 0 10px;">
@@ -1011,11 +1009,25 @@
                 <b id="recording-timer">00:00</b>
             </div>
 
+            <button type="button" class="camera-btn" id="camera-btn" onclick="openAttachmentPopup()" title="إضافة صورة">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" fill="currentColor"/>
+                    <path fill-rule="evenodd" clip-rule="evenodd" d="M7.13501 4.5684C7.54564 3.96105 8.23773 3.6 8.97645 3.6H15.0236C15.7623 3.6 16.4544 3.96105 16.865 4.5684L18.0673 6.3456H20.4C21.7255 6.3456 22.8 7.42011 22.8 8.7456V18.3456C22.8 19.6711 21.7255 20.7456 20.4 20.7456H3.6C2.27452 20.7456 1.2 19.6711 1.2 18.3456V8.7456C1.2 7.42011 2.27452 6.3456 3.6 6.3456H5.9327L7.13501 4.5684ZM12 17.4C14.9823 17.4 17.4 14.9823 17.4 12C17.4 9.01766 14.9823 6.6 12 6.6C9.01766 6.6 6.6 9.01766 6.6 12C6.6 14.9823 9.01766 17.4 12 17.4Z" fill="currentColor"/>
+                </svg>
+            </button>
+
             <button type="button" class="emoji-btn" onclick="toggleEmojiPanel()">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22ZM8.5 10C9.33 10 10 9.33 10 8.5C10 7.67 9.33 7 8.5 7C7.67 7 7 7.67 7 8.5C7 9.33 7.67 10 8.5 10ZM15.5 10C16.33 10 17 9.33 17 8.5C17 7.67 16.33 7 15.5 7C14.67 7 14 7.67 14 8.5C14 9.33 14.67 10 15.5 10ZM8 15C8.83 16.33 10.33 17 12 17C13.67 17 15.17 16.33 16 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </button>
         </div>
+
+        <button type="button" id="voice-btn" class="mic-btn" onclick="startVoiceRecording()" style="display:flex;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14Z" fill="currentColor"/>
+                <path d="M19 11C19 14.31 16.31 17 13 17H11C7.69 17 5 14.31 5 11H3C3 15.42 6.58 19 11 19V22H13V19C17.42 19 21 15.42 21 11H19Z" fill="currentColor"/>
+            </svg>
+        </button>
     </div>
 </div>
 <div id="call-overlay" class="call-overlay">
@@ -2529,10 +2541,18 @@
     }
 
     function updateInputMode() {
+        // With the new layout, both buttons are always visible or handle their state independently
         const input = document.getElementById('c-input');
+        const sendBtn = document.getElementById('send-btn');
         const hasText = input.value.trim().length > 0;
-        document.getElementById('send-btn').style.display = hasText ? 'flex' : 'none';
-        document.getElementById('voice-btn').style.display = hasText ? 'none' : 'flex';
+        
+        if (hasText) {
+            sendBtn.style.opacity = '1';
+            sendBtn.style.transform = 'scale(1)';
+        } else {
+            sendBtn.style.opacity = '0.7';
+            sendBtn.style.transform = 'scale(0.95)';
+        }
     }
 
     function handleChatInputKeydown(event) {
