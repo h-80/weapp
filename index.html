@@ -1118,6 +1118,13 @@
     window.onload = () => {
         window.history.replaceState({ page: 'home' }, '', location.href);
         window.onpopstate = ev => handleBackState(ev.state);
+
+        // Add event listeners for login buttons to ensure reliability
+        const lBtn = document.getElementById('login-btn');
+        if (lBtn) lBtn.onclick = login;
+        const rBtn = document.getElementById('register-btn');
+        if (rBtn) rBtn.onclick = register;
+
         if (my && my.phone) {
             initApp();
         } else {
@@ -1951,7 +1958,6 @@
                     }
 
                     box.appendChild(bubbleEl);
-                }
             });
             updateChatSeenCount(id, allMsgs.length);
             markChatMessagesAsRead(id);
