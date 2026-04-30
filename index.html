@@ -55,46 +55,23 @@
         .user-info b { font-size: 16px; }
         .user-info small { color: var(--muted); }
         .delete-btn {
+            width: 44px;
+            height: 44px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 44px;
-            height: 44px;
-            border-radius: 16px;
-            background: rgba(255, 235, 238, 0.95);
+            background: rgba(255, 75, 75, 0.12);
             color: var(--red);
             font-size: 18px;
+            border-radius: 16px;
             cursor: pointer;
-            border: 1px solid rgba(244, 63, 94, 0.16);
-            box-shadow: 0 8px 20px rgba(244, 63, 94, 0.12);
-            transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+            transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+            opacity: 0.88;
         }
         .delete-btn:hover {
+            background: rgba(255, 75, 75, 0.22);
             transform: translateY(-1px);
-            background: rgba(255, 230, 236, 1);
-            box-shadow: 0 12px 26px rgba(244, 63, 94, 0.16);
-        }
-
-        .btn-add {
-            width: 100%;
-            padding: 14px;
-            background: var(--app-theme);
-            color: white;
-            border: none;
-            border-radius: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 15px;
-            box-shadow: 0 16px 36px rgba(37, 211, 102, 0.18);
-            transition: transform 0.18s ease, filter 0.18s ease;
-        }
-        .btn-add:hover {
-            transform: translateY(-1px);
-            filter: brightness(1.04);
-        }
-
-        .fab {
-            position: fixed; bottom: 34px; left: 34px; background: var(--app-theme); color: white; width: 68px; height: 68px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 38px; box-shadow: 0 20px 40px rgba(37, 211, 102, 0.25); cursor: pointer; z-index: 100;
+            opacity: 1;
         }
 
         #custom-confirm {
@@ -108,26 +85,291 @@
 
         #contacts-screen { position: fixed; inset: 0; background: var(--surface-soft); z-index: 3000; transform: translateY(100%); transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         #contacts-screen.show { transform: translateY(0); }
-        .contact-form { padding: 22px; background: var(--surface); border-bottom: 1px solid var(--border); }
-        .contact-form input { width: 100%; padding: 14px; border-radius: 16px; border: 1px solid var(--border); outline: none; font-size: 15px; margin-bottom: 14px; background: #fff; }
-        .btn-add { width: 100%; padding: 14px; background: var(--app-theme); color: white; border: none; border-radius: 16px; font-weight: bold; cursor: pointer; font-size: 15px; box-shadow: 0 12px 24px rgba(37, 211, 102, 0.18); }
-        .contacts-header { padding: 20px 22px 0; }
-        .contacts-header .section-title { font-size: 18px; font-weight: 900; margin-bottom: 6px; }
+        .contact-form { padding: 24px; background: var(--surface); border-radius: 28px; border: 1px solid rgba(16, 185, 129, 0.16); box-shadow: 0 16px 40px rgba(37, 211, 102, 0.08); margin: 0 20px 18px; }
+        .contact-form input { width: 100%; padding: 16px 18px; border-radius: 20px; border: 1px solid var(--border); outline: none; font-size: 15px; margin-bottom: 14px; background: #fff; }
+        .btn-add { width: 100%; padding: 16px; background: var(--app-theme); color: white; border: none; border-radius: 24px; font-weight: 800; cursor: pointer; font-size: 15px; box-shadow: 0 16px 40px rgba(37, 211, 102, 0.24); transition: transform 0.18s ease, filter 0.18s ease; }
+        .btn-add:hover { transform: translateY(-1px); filter: brightness(1.05); }
+        .contacts-header { padding: 22px 24px 12px; display: flex; flex-direction: column; gap: 6px; }
+        .contacts-header .section-title { font-size: 20px; font-weight: 900; margin-bottom: 0; }
+        .contacts-header .section-subtitle { font-size: 14px; color: var(--muted); margin: 0; }
+        .contacts-summary { margin: 0 20px 16px; color: var(--muted); font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+        .contacts-summary b { color: var(--text); }
+        #my-contacts-list { overflow-y: auto; height: calc(100vh - 380px); padding: 0 20px 20px; }
+        .contacts-screen .user-row { background: #ffffff; border: 1px solid var(--border); border-radius: 22px; padding: 16px 16px 16px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 16px 30px rgba(15, 23, 42, 0.06); margin-bottom: 12px; }
+        .contacts-screen .user-info { gap: 12px; }
+        .contacts-screen .user-row img { width: 56px; height: 56px; border-radius: 18px; border: 1px solid var(--border); }
+        .contacts-screen .user-info b { font-size: 16px; }
+        .contacts-screen .user-info small { color: var(--muted); }
+        .contacts-screen .delete-btn { width: 42px; height: 42px; display: inline-flex; align-items: center; justify-content: center; background: rgba(255, 75, 75, 0.12); color: var(--red); font-size: 18px; border-radius: 16px; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease; opacity: 0.96; }
+        .contacts-screen .delete-btn:hover { background: rgba(255, 75, 75, 0.22); transform: translateY(-1px); opacity: 1; }
+        .contacts-screen .no-contacts { text-align: center; color: #8c98a8; font-size: 14px; padding: 40px 0; }
         .contacts-header .section-subtitle { font-size: 13px; color: var(--muted); }
 
-        .chat-full { position: fixed; inset: 0; background: #f2f7f3; z-index: 2000; display: none; flex-direction: column; }
-        .chat-header { background: var(--surface); padding: 14px 18px; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--border); height: 80px; }
-        .chat-header img { width: 48px; height: 48px; border-radius: 14px; border: 1px solid var(--border); }
-        .chat-header b { font-size: 16px; }
-        .msgs { flex: 1; padding: 22px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .bubble { padding: 12px 16px; border-radius: 22px; max-width: 75%; font-size: 15px; line-height: 1.5; box-shadow: 0 10px 20px rgba(15, 23, 42, 0.04); }
-        .me { align-self: flex-end; background: #d0f0d9; border-top-left-radius: 6px; }
-        .them { align-self: flex-start; background: white; border-top-right-radius: 6px; }
-        .chat-input-area { padding: 14px 16px; background: var(--surface); display: flex; gap: 12px; align-items: center; border-top: 1px solid var(--border); }
-        .chat-input-area input { flex: 1; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--border); outline: none; font-size: 15px; }
-        .chat-input-area button { width: 54px; height: 54px; background: var(--app-theme); color: white; border: none; border-radius: 50%; font-size: 20px; cursor: pointer; box-shadow: 0 12px 24px rgba(37, 211, 102, 0.2); }
+        .chat-full {
+            position: fixed;
+            inset: 0;
+            background-color: #e5ddd5;
+            background-image:
+                radial-gradient(circle at 60px 60px, rgba(255, 255, 255, 0.12) 0, transparent 12px),
+                radial-gradient(circle at 190px 30px, rgba(255, 255, 255, 0.12) 0, transparent 14px),
+                radial-gradient(circle at 140px 180px, rgba(255, 255, 255, 0.08) 0, transparent 10px),
+                radial-gradient(circle at 260px 250px, rgba(255, 255, 255, 0.1) 0, transparent 12px);
+            background-size: 100px 100px, 120px 120px, 80px 80px, 100px 100px;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-header {
+            background: rgba(255, 255, 255, 0.98);
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            height: 84px;
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            direction: rtl;
+        }
+        .chat-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .chat-actions button {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--app-theme);
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .chat-actions button:hover {
+            background: rgba(16, 185, 129, 0.2);
+        }
+        .chat-info {
+            display: flex;
+            flex-direction: row-reverse;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+        .chat-header img {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            object-fit: cover;
+        }
+        .chat-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+        .chat-title b {
+            font-size: 17px;
+            font-weight: 800;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            direction: rtl;
+        }
+        .chat-status {
+            font-size: 13px;
+            color: #4f6a5a;
+        }
+        .emoji-panel {
+            position: absolute;
+            left: 16px;
+            right: 16px;
+            bottom: 118px;
+            background: rgba(255, 255, 255, 0.98);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 22px;
+            padding: 12px 14px;
+            display: none;
+            gap: 10px;
+            flex-wrap: wrap;
+            box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12);
+            z-index: 3;
+        }
+        .emoji-panel button {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #f7faf8;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .msgs {
+            flex: 1;
+            padding: 22px 18px 18px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: transparent;
+        }
+        .bubble {
+            padding: 12px 16px;
+            border-radius: 18px;
+            max-width: 76%;
+            font-size: 15px;
+            line-height: 1.6;
+            word-break: break-word;
+            position: relative;
+            box-shadow: none;
+        }
+        .me {
+            align-self: flex-start;
+            background: #dcf8c6;
+            color: #111;
+            border-top-left-radius: 18px;
+            border-top-right-radius: 18px;
+            border-bottom-left-radius: 6px;
+            border-bottom-right-radius: 18px;
+        }
+        .me::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: -6px;
+            width: 12px;
+            height: 16px;
+            background: #dcf8c6;
+            clip-path: polygon(100% 0, 0 50%, 100% 100%);
+            transform: translateY(-1px);
+        }
+        .them {
+            align-self: flex-end;
+            background: #ffffff;
+            color: #111827;
+            border-top-right-radius: 18px;
+            border-top-left-radius: 18px;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 6px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+        .them::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: -6px;
+            width: 12px;
+            height: 16px;
+            background: #ffffff;
+            clip-path: polygon(0 0, 100% 50%, 0 100%);
+            transform: translateY(-1px);
+        }
+        .bubble-time {
+            display: block;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #6b7280;
+            text-align: right;
+        }
+        .me .bubble-time {
+            color: #4f6a5a;
+            font-weight: 600;
+        }
+        .me .bubble-time.read {
+            color: #34b7f1;
+            font-weight: 700;
+        }
+        .chat-input-area {
+            padding: 10px 12px;
+            background: transparent;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border-top: 1px solid rgba(15, 23, 42, 0.08);
+            position: sticky;
+            bottom: 0;
+            z-index: 1;
+        }
+        .mic-btn {
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            border: none;
+            background: var(--app-theme);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 24px rgba(37, 211, 102, 0.22);
+            cursor: pointer;
+        }
+        .chat-input-pill {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 999px;
+            background: white;
+            box-shadow: 0 12px 30px rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+        }
+        .chat-input-pill .camera-btn,
+        .chat-input-pill .attach-btn,
+        .chat-input-pill .emoji-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--text);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .mic-btn.recording {
+            background: #ef4444;
+            color: white;
+        }
+        .chat-input-pill .camera-btn:hover,
+        .chat-input-pill .attach-btn:hover,
+        .chat-input-pill .emoji-btn:hover {
+            background: rgba(16, 185, 129, 0.16);
+        }
+        .chat-input-pill input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            background: transparent;
+            padding: 0 4px;
+            color: var(--text);
+        }
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: var(--app-theme);
+            color: white;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 12px 22px rgba(37, 211, 102, 0.24);
+        }
+        .send-btn svg {
+            width: 20px;
+            height: 20px;
+        }
 
-        .fab { position: fixed; bottom: 34px; left: 34px; background: var(--app-theme); color: white; width: 68px; height: 68px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 34px; box-shadow: 0 20px 40px rgba(37, 211, 102, 0.25); cursor: pointer; z-index: 100; }
+        .fab { position: fixed; bottom: 30px; left: 30px; background: var(--app-theme); color: white; width: 66px; height: 66px; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 34px; box-shadow: 0 20px 40px rgba(37, 211, 102, 0.28); cursor: pointer; z-index: 100; transition: transform 0.2s ease, background 0.2s ease; }
+        .fab:hover { transform: translateY(-2px); background: #1eb75a; }
 
         .unread-pill {
             width: 12px;
@@ -314,21 +556,54 @@
         <button onclick="addNewContact()" class="btn-add">تزامن وإضافة</button>
     </div>
 
-    <div style="padding: 12px; background: #f9f9f9; font-weight: bold; font-size: 13px; color: var(--app-theme); border-bottom: 1px solid #eee;">قائمة جهات الاتصال</div>
-    <div id="my-contacts-list" style="overflow-y: auto; height: calc(100vh - 310px);"></div>
+    <div class="contacts-summary">
+        <span>قائمة جهات الاتصال المحفوظة</span>
+        <b id="contacts-count">0</b>
+    </div>
+    <div id="my-contacts-list"></div>
 </div>
 
 <div id="chat-ui" class="chat-full">
-    <div class="chat-header" style="justify-content: flex-start;">
-        <img id="c-avatar" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-        <b id="c-name"></b>
+    <div class="chat-header">
+        <div class="chat-info">
+            <div class="chat-title">
+                <b id="c-name"></b>
+                <span id="chat-status" class="chat-status">آخر ظهور اليوم الساعة 4:43 م</span>
+            </div>
+            <img id="c-avatar" src="" alt="صورة جهة الاتصال">
+        </div>
     </div>
     <div id="c-msgs" class="msgs"></div>
+    <div id="emoji-panel" class="emoji-panel">
+        <button type="button" onclick="insertEmoji('😊')">😊</button>
+        <button type="button" onclick="insertEmoji('😂')">😂</button>
+        <button type="button" onclick="insertEmoji('👍')">👍</button>
+        <button type="button" onclick="insertEmoji('❤️')">❤️</button>
+        <button type="button" onclick="insertEmoji('😍')">😍</button>
+        <button type="button" onclick="insertEmoji('😅')">😅</button>
+        <button type="button" onclick="insertEmoji('🎉')">🎉</button>
+        <button type="button" onclick="insertEmoji('😎')">😎</button>
+    </div>
     <div class="chat-input-area">
-        <input type="text" id="c-input" placeholder="اكتب رسالة...">
-        <button onclick="sendMsg()" style="background:var(--app-theme); color:white; border:none; width:45px; height:45px; border-radius:50%; font-size:20px;">➔</button>
+        <div class="chat-input-pill">
+            <button type="button" class="emoji-btn" onclick="toggleEmojiPanel()">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22ZM8.5 10C9.33 10 10 9.33 10 8.5C10 7.67 9.33 7 8.5 7C7.67 7 7 7.67 7 8.5C7 9.33 7.67 10 8.5 10ZM15.5 10C16.33 10 17 9.33 17 8.5C17 7.67 16.33 7 15.5 7C14.67 7 14 7.67 14 8.5C14 9.33 14.67 10 15.5 10ZM8 15C8.83 16.33 10.33 17 12 17C13.67 17 15.17 16.33 16 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+            <input type="text" id="c-input" placeholder="مراسلة" oninput="updateInputMode()" onkeydown="handleChatInputKeydown(event)">
+            <button type="button" class="camera-btn" onclick="openAttachmentPopup()" title="إضافة صورة">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 5h-3.2l-1.8-2H8L6.2 5H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 12H3V7h3.8l1.8-2h4.4l1.8 2H21v10zm-8-9a4 4 0 100 8 4 4 0 000-8zm0 2a2 2 0 110 4 2 2 0 010-4z" fill="currentColor"/></svg>
+            </button>
+            <button type="button" id="send-btn" class="send-btn" onclick="sendMsg()" style="display:none">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="currentColor"/></svg>
+            </button>
+        </div>
+        <button type="button" id="voice-btn" class="mic-btn" onclick="startVoiceRecording()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14ZM19 11C19 14.31 16.31 17 13 17H11C7.69 17 5 14.31 5 11H3C3 15.42 6.58 19 11 19V22H13V19C17.42 19 21 15.42 21 11H19Z" fill="currentColor"/></svg>
+        </button>
     </div>
 </div>
+<input id="chat-img-input" type="file" accept="image/*" style="display:none" onchange="handleChatImage(event)">
 
 <script>
     const firebaseConfig = { databaseURL: "https://weapp-80-default-rtdb.firebaseio.com" };
@@ -356,6 +631,21 @@
     function updateChatSeenCount(id, count) {
         chatSeenCounts[id] = count;
         saveChatSeenCounts();
+    }
+
+    function markChatMessagesAsRead(id) {
+        db.ref('chats/' + id).once('value', s => {
+            const updates = {};
+            s.forEach(child => {
+                const m = child.val();
+                if (m.u !== my.phone && m.r !== true) {
+                    updates[child.key + '/r'] = true;
+                }
+            });
+            if (Object.keys(updates).length) {
+                db.ref('chats/' + id).update(updates);
+            }
+        });
     }
 
     window.onload = () => {
@@ -549,9 +839,11 @@
 
     function loadMyContacts() {
         const l = document.getElementById('my-contacts-list');
+        const count = document.getElementById('contacts-count');
         l.innerHTML = '';
-        if(myFriends.length === 0) {
-            l.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">لا توجد جهات اتصال</p>';
+        count.innerText = myFriends.length;
+        if (myFriends.length === 0) {
+            l.innerHTML = '<p class="no-contacts">لا توجد جهات اتصال محفوظة بعد. أضف جهة اتصال جديدة لتبدأ المحادثة.</p>';
             return;
         }
         myFriends.forEach(contact => {
@@ -675,6 +967,10 @@
         document.getElementById('chat-ui').style.display = 'flex';
         document.getElementById('c-avatar').src = u.img;
         document.getElementById('c-name').innerText = u.name;
+        document.getElementById('chat-status').innerText = u.status || 'متصل الآن';
+        document.getElementById('c-input').value = '';
+        updateInputMode();
+        toggleEmojiPanel(false);
         db.ref('chats/' + id).on('value', s => {
             const box = document.getElementById('c-msgs');
             box.innerHTML = '';
@@ -682,11 +978,169 @@
             s.forEach(mS => {
                 const m = mS.val();
                 msgs.push(m);
-                box.innerHTML += `<div class="bubble ${m.u === my.phone ? 'me' : 'them'}">${m.t}</div>`;
+                const time = m.ts || '';
+                const isRead = m.u === my.phone && m.r === true;
+                const timeClass = isRead ? 'bubble-time read' : 'bubble-time';
+                const meta = m.u === my.phone
+                    ? `<span class="${timeClass}">${time} ✓✓</span>`
+                    : `<span class="${timeClass}">${time}</span>`;
+                let content = '';
+                if (m.audio) {
+                    content += `<audio controls src="${m.audio}" style="width:100%; margin-bottom:8px; border-radius: 14px;"></audio>`;
+                }
+                if (m.t) {
+                    content += `<span>${m.t}</span>`;
+                }
+                if (!content) {
+                    content = '<span>رسالة صوتية</span>';
+                }
+                box.innerHTML += `<div class="bubble ${m.u === my.phone ? 'me' : 'them'}">${content}${meta}</div>`;
             });
             updateChatSeenCount(id, msgs.length);
+            markChatMessagesAsRead(id);
             box.scrollTop = box.scrollHeight;
         });
+    }
+
+    function updateInputMode() {
+        const input = document.getElementById('c-input');
+        const hasText = input.value.trim().length > 0;
+        document.getElementById('send-btn').style.display = hasText ? 'flex' : 'none';
+        document.getElementById('voice-btn').style.display = hasText ? 'none' : 'flex';
+    }
+
+    function handleChatInputKeydown(event) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+            event.preventDefault();
+            sendMsg();
+        }
+    }
+
+    function toggleEmojiPanel(force) {
+        const panel = document.getElementById('emoji-panel');
+        if (force === true) {
+            panel.style.display = 'flex';
+            return;
+        }
+        if (force === false) {
+            panel.style.display = 'none';
+            return;
+        }
+        panel.style.display = panel.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function insertEmoji(char) {
+        const input = document.getElementById('c-input');
+        input.value += char;
+        input.focus();
+        updateInputMode();
+    }
+
+    function openAttachmentPopup() {
+        document.getElementById('chat-img-input').click();
+    }
+
+    function handleChatImage(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        showConfirm('إضافة صورة', 'تم اختيار صورة للمحادثة.', false);
+        event.target.value = '';
+    }
+
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    let isRecording = false;
+
+    function startVoiceRecording() {
+        const btn = document.getElementById('voice-btn');
+        const micIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 14C13.66 14 15 12.66 15 11V5C15 3.34 13.66 2 12 2C10.34 2 9 3.34 9 5V11C9 12.66 10.34 14 12 14ZM19 11C19 14.31 16.31 17 13 17H11C7.69 17 5 14.31 5 11H3C3 15.42 6.58 19 11 19V22H13V19C17.42 19 21 15.42 21 11H19Z" fill="currentColor"/></svg>`;
+        const stopIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/></svg>`;
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showConfirm('التسجيل غير مدعوم', 'متصفحك لا يدعم الوصول إلى الميكروفون.', false);
+            return;
+        }
+
+        if (typeof MediaRecorder === 'undefined') {
+            showConfirm('التسجيل غير مدعوم', 'متصفحك لا يدعم تسجيل الصوت عبر MediaRecorder.', false);
+            return;
+        }
+
+        if (!window.isSecureContext && !location.protocol.startsWith('file')) {
+            showConfirm('لا يوجد اتصال آمن', 'يجب فتح التطبيق عبر HTTPS أو localhost لتعمل ميزة التسجيل الصوتي.', false);
+            return;
+        }
+
+        if (isRecording) {
+            mediaRecorder?.stop();
+            isRecording = false;
+            btn.classList.remove('recording');
+            btn.innerHTML = micIcon;
+            return;
+        }
+
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(stream => {
+                try {
+                    mediaRecorder = new MediaRecorder(stream);
+                } catch (mediaError) {
+                    stream.getTracks().forEach(track => track.stop());
+                    showConfirm('خطأ تسجيل الصوت', 'لم نتمكن من بدء التسجيل. جرب متصفحًا أحدث مثل Chrome أو Edge.', false);
+                    console.error('MediaRecorder init failed:', mediaError);
+                    return;
+                }
+
+                recordedChunks = [];
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data && e.data.size > 0) {
+                        recordedChunks.push(e.data);
+                    }
+                };
+                mediaRecorder.onstop = async () => {
+                    stream.getTracks().forEach(track => track.stop());
+                    if (recordedChunks.length === 0) {
+                        btn.classList.remove('recording');
+                        btn.innerHTML = micIcon;
+                        return;
+                    }
+                    const blob = new Blob(recordedChunks, { type: 'audio/webm' });
+                    const audioUrl = await blobToDataURL(blob);
+                    sendAudioMsg(audioUrl);
+                    btn.classList.remove('recording');
+                    btn.innerHTML = micIcon;
+                };
+                mediaRecorder.start();
+                isRecording = true;
+                btn.classList.add('recording');
+                btn.innerHTML = stopIcon;
+            })
+            .catch(error => {
+                btn.classList.remove('recording');
+                btn.innerHTML = micIcon;
+                if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+                    showConfirm('تم رفض الميكروفون', 'يرجى السماح بالوصول إلى الميكروفون لتسجيل الصوت.', false);
+                } else if (error.name === 'NotFoundError' || error.name === 'NotReadableError') {
+                    showConfirm('الميكروفون غير متاح', 'لم يتم العثور على ميكروفون متصل أو يمكن الوصول إليه.', false);
+                } else {
+                    showConfirm('خطأ تسجيل الصوت', 'حدث خطأ أثناء تهيئة الميكروفون. جرب إعادة تحميل الصفحة أو استخدم متصفحًا آخر.', false);
+                }
+                console.error('Voice recording error:', error);
+            });
+    }
+
+    function blobToDataURL(blob) {
+        return new Promise(resolve => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(blob);
+        });
+    }
+
+    function sendAudioMsg(audioUrl) {
+        if (!peer) return;
+        const id = [my.phone, peer.phone].sort().join('_');
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        db.ref('chats/' + id).push({ u: my.phone, audio: audioUrl, ts: time, r: false });
     }
 
     function sendMsg() {
@@ -694,8 +1148,11 @@
         const txt = input.value.trim();
         if (!txt || !peer) return;
         const id = [my.phone, peer.phone].sort().join('_');
-        db.ref('chats/' + id).push({ u: my.phone, t: txt });
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        db.ref('chats/' + id).push({ u: my.phone, t: txt, ts: time, r: false });
         input.value = '';
+        updateInputMode();
+        toggleEmojiPanel(false);
     }
 
     function closeChat() {
