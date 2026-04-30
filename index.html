@@ -137,7 +137,7 @@
         }
         .chat-header {
             background: rgba(255, 255, 255, 0.98);
-            padding: 10px 16px;
+            padding: 10px 16px 10px 4px; /* Reduced left padding to align with edge */
             display: flex;
             flex-direction: row;
             align-items: center;
@@ -159,6 +159,7 @@
             display: flex;
             align-items: center;
             gap: 0;
+            margin-left: -6px; /* Push further to the left edge */
         }
         .chat-back {
             width: 40px;
