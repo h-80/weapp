@@ -236,13 +236,17 @@
         }
         .call-media {
             position: relative;
-            min-height: 240px;
-            background: #f7faf8;
-            border-radius: 22px;
+            min-height: 480px;
+            aspect-ratio: 9 / 16;
+            background: #000;
+            border-radius: 28px;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin: 0 auto;
+            width: 100%;
+            max-width: 320px;
         }
         .call-media video {
             width: 100%;
@@ -1928,23 +1932,39 @@
     function listenForIncomingCalls() {
         if (!my || !my.phone) return;
         if (incomingCallsRef) incomingCallsRef.off();
+        
+        // Listen to all changes in the incoming_calls node for this user
         incomingCallsRef = db.ref('incoming_calls/' + my.phone);
-        incomingCallsRef.on('child_added', snapshot => {
-            const data = snapshot.val();
-            if (!data || callId) return;
-            pendingIncomingCall = { callId: snapshot.key, ...data };
-            callType = data.type;
-            isCaller = false;
-            callId = snapshot.key;
-            const displayName = getDisplayName(data.caller, data.callerName);
-            peer = { phone: data.caller, name: displayName, img: data.callerImg || '' };
-            showCallOverlay('incoming');
-            setCallStatus('مكالمة واردة من ' + displayName);
-        });
-        incomingCallsRef.on('child_removed', snapshot => {
-            if (pendingIncomingCall && pendingIncomingCall.callId === snapshot.key) {
-                hideCallOverlay();
-                pendingIncomingCall = null;
+        
+        incomingCallsRef.on('value', snapshot => {
+            const calls = snapshot.val();
+            if (!calls) {
+                if (pendingIncomingCall) {
+                    hideCallOverlay();
+                    pendingIncomingCall = null;
+                }
+                return;
+            }
+
+            // Get the newest call
+            const callIds = Object.keys(calls);
+            const latestCallId = callIds[callIds.length - 1];
+            const data = calls[latestCallId];
+
+            if (data && !callId) {
+                pendingIncomingCall = { callId: latestCallId, ...data };
+                callType = data.type;
+                isCaller = false;
+                callId = latestCallId;
+                const displayName = getDisplayName(data.caller, data.callerName);
+                peer = { phone: data.caller, name: displayName, img: data.callerImg || '' };
+                
+                console.log('Incoming call detected:', pendingIncomingCall);
+                showCallOverlay('incoming');
+                setCallStatus('مكالمة واردة من ' + displayName);
+                
+                // Show notification if app is in background (if supported)
+                showDesktopNotification('مكالمة واردة', 'مكالمة من ' + displayName, data.callerImg);
             }
         });
     }
@@ -2202,12 +2222,13 @@
         try {
             stopStream(callLocalStream);
             
-            // Optimized constraints for Mobile WebViews
+            // Optimized constraints for Portrait Mobile WebViews (9:16)
             const finalConstraints = {
                 audio: constraints.audio || true,
                 video: constraints.video ? {
-                    width: { ideal: 640 },
-                    height: { ideal: 480 },
+                    width: { ideal: 480 },
+                    height: { ideal: 854 },
+                    aspectRatio: 0.5625, // 9/16
                     facingMode: "user"
                 } : false
             };
