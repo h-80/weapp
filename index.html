@@ -2279,18 +2279,28 @@
     }
 
     async function rejectIncomingCall() {
-        if (callId) {
-            console.log('Rejecting call:', callId);
-            // 1. Remove notification for callee
-            await db.ref('incoming_calls/' + my.phone + '/' + callId).remove().catch(e => console.error('Error removing incoming call:', e));
-            
-            // 2. Notify caller by removing the call session
+        const activeCallId = callId || (pendingIncomingCall && pendingIncomingCall.callId);
+        const incomingPhone = peer && peer.phone ? peer.phone : (pendingIncomingCall ? pendingIncomingCall.caller : null);
+
+        pendingIncomingCall = null;
+
+        if (activeCallId) {
+            console.log('Rejecting call:', activeCallId);
+
+            // Remove incoming call notification for this user or the caller, if it exists
+            await db.ref('incoming_calls/' + my.phone + '/' + activeCallId).remove().catch(e => console.error('Error removing incoming call:', e));
+            if (incomingPhone && incomingPhone !== my.phone) {
+                await db.ref('incoming_calls/' + incomingPhone + '/' + activeCallId).remove().catch(e => console.error('Error removing caller incoming call entry:', e));
+            }
+
+            // Remove the call session if it exists
             if (callRef) {
                 await callRef.remove().catch(e => console.error('Error removing call ref:', e));
             } else {
-                await db.ref('calls/' + callId).remove().catch(e => console.error('Error removing calls node:', e));
+                await db.ref('calls/' + activeCallId).remove().catch(e => console.error('Error removing calls node:', e));
             }
         }
+
         cleanupCall();
     }
 
@@ -2553,6 +2563,7 @@
         isCaller = false;
         pendingIncomingCall = null;
         currentChatCallId = null;
+        peer = null;
         if (callRef) {
             callRef.off();
             callRef = null;
