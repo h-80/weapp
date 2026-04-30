@@ -3,106 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>WeApp - تسجيل دخول Google</title>
+    <title>عراق جات - Alfaham Pro</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    
+
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
-        body { background: #111b21; height: 100vh; display: flex; justify-content: center; align-items: center; }
-        
-        /* شاشة تسجيل الدخول */
-        .auth-container { background: #202c33; width: 90%; max-width: 420px; border-radius: 28px; padding: 40px 25px; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.3); animation: fadeIn 0.4s ease; }
-        .auth-container h1 { color: #e9edef; font-size: 32px; margin-bottom: 10px; }
-        .auth-container .sub { color: #8696a0; font-size: 14px; margin-bottom: 40px; }
-        
-        .google-btn { 
-            width: 100%; 
-            padding: 16px; 
-            background: #fff; 
-            color: #111b21; 
-            border: none; 
-            border-radius: 28px; 
-            font-size: 16px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 12px; 
-            transition: all 0.2s; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        :root {
+            --wa-green: #25d366;
+            --wa-dark: #075e54;
+            --wa-bg: #efeae2;
+            --bubble-me: #dcf8c6;
+            --bubble-other: #ffffff;
         }
-        .google-btn:hover { background: #f0f0f0; transform: scale(0.98); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #f0f2f5; height: 100vh; display: flex; justify-content: center; align-items: center; }
+
+        /* شاشة الدخول */
+        .login-screen { background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; width: 90%; max-width: 400px; }
+        .main-logo { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--wa-green); padding: 5px; margin-bottom: 20px; }
+
+        /* الهيكل الرئيسي */
+        .app-shell { width: min(100%, 1280px); height: 95vh; background: #fff; display: none; grid-template-columns: 380px 1fr; overflow: hidden; box-shadow: 0 2px 20px rgba(0,0,0,0.1); border-radius: 10px; }
+        .active-app { display: grid; }
+
+        /* القائمة الجانبية */
+        .sidebar { border-left: 1px solid rgba(0,0,0,0.1); display: flex; flex-direction: column; background: white; }
+        .sidebar-header { padding: 12px 16px; background: #ededed; display: flex; justify-content: space-between; align-items: center; }
+        .brand-box { display: flex; align-items: center; gap: 10px; font-weight: bold; color: var(--wa-dark); }
+        .small-logo { width: 35px; height: 35px; border-radius: 50%; }
+
+        .chat-list { flex: 1; overflow-y: auto; }
+        .chat-card { display: flex; align-items: center; gap: 12px; padding: 12px 15px; cursor: pointer; border-bottom: 1px solid #f2f2f2; transition: 0.2s; }
+        .chat-card:hover { background: #f5f6f6; }
+        .chat-card img { width: 48px; height: 48px; border-radius: 50%; }
+
+        /* منطقة الدردشة */
+        .chat-main { display: flex; flex-direction: column; background: var(--wa-bg); background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); }
+        .chat-topbar { background: #ededed; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+        .messages-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
         
-        /* واجهة التطبيق */
-        .app-container { width: 100%; height: 100vh; background: #111b21; display: none; flex-direction: column; }
-        .app-header { background: #202c33; color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a3942; }
-        .app-header h2 { font-size: 19px; font-weight: 500; }
-        .header-actions { display: flex; gap: 15px; }
-        .header-actions button { background: none; border: none; color: #aebac1; font-size: 20px; cursor: pointer; padding: 8px; border-radius: 50%; }
-        
-        .app-content { display: flex; flex: 1; overflow: hidden; }
-        .chats-list { width: 100%; background: #111b21; overflow-y: auto; }
-        .chat-item { display: flex; align-items: center; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #2a3942; }
-        .chat-item:hover { background: #2a3942; }
-        .chat-img { width: 49px; height: 49px; border-radius: 50%; margin-left: 12px; object-fit: cover; }
-        .chat-info { flex: 1; text-align: right; }
-        .chat-name { font-weight: 500; color: #e9edef; font-size: 16px; }
-        .chat-last-msg { font-size: 13px; color: #8696a0; margin-top: 2px; }
+        .message { max-width: 70%; padding: 8px 12px; border-radius: 8px; font-size: 14.5px; position: relative; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
+        .sent { background: var(--bubble-me); align-self: flex-end; border-top-left-radius: 8px; }
+        .received { background: var(--bubble-other); align-self: flex-start; border-top-right-radius: 8px; }
+        .time { font-size: 10px; color: #667781; display: block; text-align: left; margin-top: 4px; }
 
-        .chat-area { display: none; flex-direction: column; flex: 1; background: #0b141a; }
-        .chat-header { background: #202c33; padding: 10px 16px; display: flex; align-items: center; border-bottom: 1px solid #2a3942; }
-        .chat-header img { width: 40px; height: 40px; border-radius: 50%; margin-left: 12px; }
-        .messages-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .message { max-width: 70%; padding: 8px 12px; border-radius: 12px; color: #e9edef; }
-        .message.sent { background: #005c4b; align-self: flex-end; }
-        .message.received { background: #202c33; align-self: flex-start; }
+        .chat-footer { background: #f0f2f5; padding: 10px 16px; display: flex; align-items: center; gap: 12px; }
+        .input-box { flex: 1; background: white; border-radius: 8px; padding: 10px 15px; border: none; outline: none; font-size: 15px; }
+        .send-btn { background: none; border: none; cursor: pointer; color: #54656f; font-size: 24px; }
 
-        .input-bar { background: #202c33; padding: 10px; display: flex; gap: 10px; }
-        .input-bar input { flex: 1; padding: 10px 15px; border-radius: 25px; border: none; background: #2a3942; color: white; outline: none; }
-        .input-bar button { background: none; border: none; color: #25D366; font-size: 24px; cursor: pointer; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @media (max-width: 768px) { .app-shell { grid-template-columns: 1fr; height: 100vh; border-radius: 0; } .hidden-mobile { display: none !important; } }
     </style>
 </head>
 <body>
 
-<div id="auth-screen" class="auth-container">
-    <h1>💬 WeApp</h1>
-    <div class="sub">سجل دخولك لتبدأ التواصل مع أصدقائك</div>
-    
-    <button class="google-btn" onclick="loginWithGoogle()">
-        <svg width="24" height="24" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"></path><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path></svg>
-        تسجيل الدخول بواسطة Google
+<div id="login-screen" class="login-screen">
+    <img src="https://e.top4top.io/p_3771yr28m3.png" class="main-logo">
+    <h2 style="color: var(--wa-dark);">عراق جات</h2>
+    <p style="color: #66707d; margin-bottom: 25px;">بواسطة هايدر الفاهم</p>
+    <button onclick="login()" style="width:100%; padding:12px; border-radius:25px; border:1px solid #ccc; background:white; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18">
+        الدخول عبر جوجل
     </button>
 </div>
 
-<div id="app-container" class="app-container">
-    <div class="app-header">
-        <h2>WeApp</h2>
-        <div class="header-actions">
-            <button onclick="logout()">🚪</button>
-            <button id="user-profile-btn" onclick="openProfile()">👤</button>
-        </div>
-    </div>
-    <div class="app-content">
-        <div id="chats-list" class="chats-list"></div>
-        <div id="chat-area" class="chat-area">
-            <div class="chat-header">
-                <button onclick="closeChat()" style="background:none; border:none; color:white; font-size:20px; margin-left:10px;">→</button>
-                <img id="chat-user-img" src="">
-                <div id="chat-user-name" style="color:white; font-weight:bold;"></div>
+<div id="app-shell" class="app-shell">
+    <section id="side-panel" class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand-box">
+                <img src="https://e.top4top.io/p_3771yr28m3.png" class="small-logo">
+                <span>الفاهم جات</span>
             </div>
-            <div id="messages-container" class="messages-container"></div>
-            <div class="input-bar">
-                <input type="text" id="message-input" placeholder="اكتب رسالة...">
-                <button onclick="sendMessage()">➤</button>
+            <img id="my-avatar" style="width: 35px; height:35px; border-radius:50%;">
+        </div>
+        <div class="chat-list" id="users-list"></div>
+    </section>
+
+    <section id="chat-panel" class="chat-main hidden-mobile">
+        <div class="chat-topbar">
+            <img id="target-avatar" style="width:40px; height:40px; border-radius:50%;">
+            <div style="flex:1">
+                <div id="target-name" style="font-weight:600;">اختر صديقاً</div>
+                <div style="font-size:12px; color:#667781;">متصل الآن</div>
             </div>
         </div>
-    </div>
+        <div class="messages-container" id="messages-area"></div>
+        <div class="chat-footer">
+            <input type="text" id="msg-input" class="input-box" placeholder="اكتب رسالة...">
+            <button class="send-btn" onclick="send()">➤</button>
+        </div>
+    </section>
 </div>
 
 <script>
@@ -112,102 +103,75 @@
         databaseURL: "https://weapp-80-default-rtdb.firebaseio.com",
         projectId: "weapp-80",
         storageBucket: "weapp-80.firebasestorage.app",
-        messagingSenderId: "951505296041",
         appId: "1:951505296041:web:ad9404236b969b61e9e7b8"
     };
 
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
     const auth = firebase.auth();
+    const db = firebase.database();
     const provider = new firebase.auth.GoogleAuthProvider();
 
-    let currentUser = null;
-    let currentChatId = null;
+    let me = null;
+    let target = null;
 
-    // تسجيل الدخول بجوجل فقط
-    async function loginWithGoogle() {
-        try {
-            const result = await auth.signInWithPopup(provider);
-            const user = result.user;
-            
-            // تجهيز بيانات المستخدم من جوجل
-            const userData = {
-                uid: user.uid,
-                name: user.displayName,
-                email: user.email,
-                img: user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}`,
-                status: 'online',
-                last_seen: Date.now()
-            };
+    function login() { auth.signInWithRedirect(provider); }
 
-            // حفظ/تحديث البيانات في Firebase
-            await db.ref(`users/${user.uid}`).update(userData);
-            
-            currentUser = userData;
-            localStorage.setItem('weapp_user', JSON.stringify(currentUser));
-            
-            showApp();
-        } catch(err) {
-            alert("خطأ في تسجيل الدخول: " + err.message);
+    auth.getRedirectResult().then(res => {
+        if (res.user || auth.currentUser) {
+            me = res.user || auth.currentUser;
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('app-shell').classList.add('active-app');
+            document.getElementById('my-avatar').src = me.photoURL;
+            db.ref('users/' + me.uid).set({ uid: me.uid, name: me.displayName, img: me.photoURL });
+            loadUsers();
         }
+    });
+
+    function loadUsers() {
+        db.ref('users').on('value', snap => {
+            const list = document.getElementById('users-list');
+            list.innerHTML = '';
+            snap.forEach(child => {
+                const u = child.val();
+                if (u.uid !== me.uid) {
+                    const d = document.createElement('div');
+                    d.className = 'chat-card';
+                    d.innerHTML = `<img src="${u.img}"><div><b>${u.name}</b></div>`;
+                    d.onclick = () => {
+                        target = u;
+                        document.getElementById('target-name').innerText = u.name;
+                        document.getElementById('target-avatar').src = u.img;
+                        document.getElementById('chat-panel').classList.remove('hidden-mobile');
+                        loadMsgs();
+                    };
+                    list.appendChild(d);
+                }
+            });
+        });
     }
 
-    function showApp() {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-container').style.display = 'flex';
-        loadUsers();
+    function loadMsgs() {
+        const id = [me.uid, target.uid].sort().join('_');
+        db.ref('chats/' + id).on('value', snap => {
+            const area = document.getElementById('messages-area');
+            area.innerHTML = '';
+            snap.forEach(mSnap => {
+                const m = mSnap.val();
+                const div = document.createElement('div');
+                div.className = `message ${m.sender === me.uid ? 'sent' : 'received'}`;
+                div.innerHTML = `${m.text} <span class="time">${new Date(m.time).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</span>`;
+                area.appendChild(div);
+            });
+            area.scrollTop = area.scrollHeight;
+        });
     }
 
-    async function loadUsers() {
-        const snapshot = await db.ref('users').once('value');
-        const users = snapshot.val();
-        const list = document.getElementById('chats-list');
-        list.innerHTML = '';
-
-        for (let id in users) {
-            if (id !== currentUser.uid) {
-                const user = users[id];
-                const item = document.createElement('div');
-                item.className = 'chat-item';
-                item.innerHTML = `
-                    <img src="${user.img}" class="chat-img">
-                    <div class="chat-info">
-                        <div class="chat-name">${user.name}</div>
-                        <div class="chat-last-msg">${user.email}</div>
-                    </div>
-                `;
-                item.onclick = () => openChat(id, user);
-                list.appendChild(item);
-            }
-        }
-    }
-
-    function openChat(id, user) {
-        document.getElementById('chat-area').style.display = 'flex';
-        document.getElementById('chat-user-img').src = user.img;
-        document.getElementById('chat-user-name').innerText = user.name;
-        // هنا تضاف وظائف الرسائل المتبقية...
-    }
-
-    function closeChat() {
-        document.getElementById('chat-area').style.display = 'none';
-    }
-
-    function logout() {
-        auth.signOut();
-        localStorage.removeItem('weapp_user');
-        location.reload();
-    }
-
-    function openProfile() {
-        alert(`الملف الشخصي:\nالاسم: ${currentUser.name}\nالبريد: ${currentUser.email}`);
-    }
-
-    // التحقق من الجلسة السابقة
-    const saved = localStorage.getItem('weapp_user');
-    if (saved) {
-        currentUser = JSON.parse(saved);
-        showApp();
+    function send() {
+        const input = document.getElementById('msg-input');
+        if (!input.value.trim() || !target) return;
+        const id = [me.uid, target.uid].sort().join('_');
+        db.ref('chats/' + id).push({ sender: me.uid, text: input.value, time: Date.now() });
+        input.value = '';
     }
 </script>
 </body>
