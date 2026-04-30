@@ -11,57 +11,106 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: var(--bg); height: 100vh; overflow: hidden; }
 
-        /* شاشة الدخول */
-        #login-screen { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .login-card { background: white; padding: 30px; border-radius: 20px; text-align: center; width: 100%; max-width: 380px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .pic-uploader { width: 100px; height: 100px; margin: 0 auto 15px; cursor: pointer; border: 3px solid var(--wa-green); border-radius: 50%; overflow: hidden; }
-        .pic-uploader img { width: 100%; height: 100%; object-fit: cover; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; }
-        .btn-go { width: 100%; padding: 14px; background: var(--wa-green); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        /* هيدر احترافي: الشعار يمين والصورة يسار */
+        header { 
+            background: var(--wa-dark); 
+            color: white; 
+            padding: 10px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            height: 60px;
+        }
+        .logo-text { font-weight: bold; font-size: 20px; letter-spacing: 1px; }
+        .h-avatar { 
+            width: 42px; 
+            height: 42px; 
+            border-radius: 50%; 
+            border: 2px solid white; 
+            cursor: pointer; 
+            object-fit: cover; 
+            transition: 0.3s;
+        }
+        .h-avatar:active { transform: scale(0.9); }
 
-        /* التطبيق الرئيسي */
-        #app-content { display: none; height: 100vh; flex-direction: column; }
-        header { background: var(--wa-dark); color: white; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; }
-        .my-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; cursor: pointer; object-fit: cover; }
-
-        .screen { flex: 1; overflow-y: auto; background: white; position: relative; }
+        /* شاشات التطبيق */
+        .screen { height: calc(100vh - 60px); overflow-y: auto; background: white; position: relative; }
         .user-row { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 15px; cursor: pointer; }
         .user-row img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; }
-        
         .fab { position: fixed; bottom: 25px; left: 25px; background: var(--wa-green); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer; }
 
-        /* المحادثة */
-        .chat-view { position: fixed; inset: 0; background: #e5ddd5; z-index: 2000; display: none; flex-direction: column; }
-        .chat-head { padding: 10px; background: #ededed; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #ddd; }
+        /* نافذة الملف الشخصي (التي تفتح من اليسار) */
+        .profile-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 5000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .profile-card {
+            background: white;
+            width: 85%;
+            max-width: 350px;
+            padding: 30px 20px;
+            border-radius: 20px;
+            text-align: center;
+            position: relative;
+        }
+        .edit-pic-wrapper {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            position: relative;
+            cursor: pointer;
+        }
+        .edit-pic-wrapper img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 4px solid var(--wa-green); }
+        .edit-pic-wrapper .camera-icon {
+            position: absolute; bottom: 5px; right: 5px;
+            background: var(--wa-green); color: white;
+            width: 32px; height: 32px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; border: 2px solid white;
+        }
+
+        .profile-card input { width: 100%; padding: 12px; margin: 15px 0; border: 1px solid #ddd; border-radius: 10px; text-align: center; font-size: 16px; }
+        .btn-save { width: 100%; padding: 12px; background: var(--wa-green); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
+        .btn-logout { width: 100%; padding: 10px; background: #ff4747; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; color: #888; cursor: pointer; }
+
+        /* شاشة الدخول */
+        #login-screen { position: fixed; inset: 0; background: white; z-index: 6000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .hidden { display: none !important; }
+        
+        /* واجهة الدردشة */
+        .chat-full { position: fixed; inset: 0; background: #e5ddd5; z-index: 2000; display: none; flex-direction: column; }
+        .chat-header { background: #ededed; padding: 10px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #ddd; }
         .msgs { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
         .bbl { padding: 8px 12px; border-radius: 8px; max-width: 80%; font-size: 14px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
         .me { align-self: flex-end; background: #dcf8c6; }
         .them { align-self: flex-start; background: white; }
-        .footer { padding: 10px; background: #f0f2f5; display: flex; gap: 8px; }
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; align-items: center; justify-content: center; }
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-<div id="login-screen">
-    <div class="login-card">
-        <div class="pic-uploader" onclick="document.getElementById('f-in').click()">
-            <img id="l-pre" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
+<div id="login-screen" class="hidden">
+    <div style="text-align: center; width: 100%; max-width: 350px;">
+        <div class="edit-pic-wrapper" onclick="document.getElementById('f-reg').click()">
+            <img id="reg-pre" src="https://cdn-icons-png.flaticon.com/512/149/149071.png">
         </div>
-        <input type="file" id="f-in" class="hidden" accept="image/*" onchange="compressImg(this, 'l-pre')">
-        <h3>We App</h3>
-        <input type="text" id="n-in" placeholder="الاسم">
-        <input type="tel" id="p-in" placeholder="رقم الهاتف">
-        <button class="btn-go" id="btn-reg" onclick="register()">دخول</button>
+        <input type="file" id="f-reg" class="hidden" accept="image/*" onchange="compress(this, 'reg-pre')">
+        <h2>We App</h2>
+        <input type="text" id="n-reg" placeholder="الاسم">
+        <input type="tel" id="p-reg" placeholder="رقم الهاتف">
+        <button class="btn-save" onclick="register()">إنشاء الحساب</button>
     </div>
 </div>
 
 <div id="app-content">
     <header>
-        <img id="h-avatar" class="my-avatar" onclick="openMe()">
-        <b>We App</b>
-        <button onclick="logout()" style="background:none; border:none; color:white; font-size:12px;">خروج</button>
+        <div class="logo-text">We App</div>
+        <img id="header-img" class="h-avatar" onclick="toggleProfile(true)">
     </header>
 
     <div id="main-screen" class="screen">
@@ -70,42 +119,53 @@
     </div>
 
     <div id="contacts-screen" class="screen hidden">
-        <div style="padding:15px; background:#f9f9f9; cursor:pointer;" onclick="hideContacts()">⬅ رجوع</div>
+        <div style="padding:15px; background:#f9f9f9; border-bottom:1px solid #eee; cursor:pointer;" onclick="hideContacts()">⬅ رجوع</div>
         <div id="all-list"></div>
     </div>
 </div>
 
-<div id="chat-ui" class="chat-view">
-    <div class="chat-head">
-        <span onclick="closeChat()" style="cursor:pointer; font-size:22px;">⬅</span>
-        <img id="c-avatar" style="width:35px; height:35px; border-radius:50%;">
+<div id="profile-modal" class="profile-modal">
+    <div class="profile-card">
+        <span class="close-modal" onclick="toggleProfile(false)">&times;</span>
+        <h3>الملف الشخصي</h3>
+        <div class="edit-pic-wrapper" onclick="document.getElementById('f-edit').click()">
+            <img id="edit-pre" src="">
+            <div class="camera-icon">📷</div>
+        </div>
+        <input type="file" id="f-edit" class="hidden" accept="image/*" onchange="compress(this, 'edit-pre')">
+        <input type="text" id="edit-name-input">
+        <button class="btn-save" onclick="updateProfile()">حفظ التغييرات</button>
+        <button class="btn-logout" onclick="logout()">تسجيل الخروج</button>
+    </div>
+</div>
+
+<div id="chat-ui" class="chat-full">
+    <div class="chat-header">
+        <span onclick="closeChat()" style="cursor:pointer; font-size:24px;">⬅</span>
+        <img id="c-avatar" style="width:38px; height:38px; border-radius:50%; object-fit:cover;">
         <b id="c-name"></b>
     </div>
     <div id="c-msgs" class="msgs"></div>
-    <div class="footer">
+    <div style="padding:10px; background:#f0f2f5; display:flex; gap:10px;">
         <input type="text" id="c-input" placeholder="اكتب رسالة...">
-        <button onclick="send()" style="padding:10px 15px; background:var(--wa-green); border:none; color:white; border-radius:10px;">إرسال</button>
+        <button onclick="sendMsg()" style="padding:10px 20px; background:var(--wa-green); border:none; color:white; border-radius:10px;">إرسال</button>
     </div>
 </div>
 
 <script>
-    // تأكد من رابط قاعدة بياناتك هنا
     const fb = firebase.initializeApp({ databaseURL: "https://weapp-80-default-rtdb.firebaseio.com" });
     const db = fb.database();
 
     let my = JSON.parse(localStorage.getItem('we_user_v2')) || null;
     let peer = null;
-    let currentImg = "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+    let tempImg = "";
 
     window.onload = () => {
-        if(my && my.phone) {
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-content').style.display = 'flex';
-            initApp();
-        }
+        if(!my) document.getElementById('login-screen').classList.remove('hidden');
+        else init();
     };
 
-    function compressImg(input, targetId) {
+    function compress(input, targetId) {
         if(input.files && input.files[0]) {
             const r = new FileReader();
             r.onload = e => {
@@ -114,8 +174,8 @@
                     const cvs = document.createElement('canvas');
                     cvs.width = 150; cvs.height = 150;
                     cvs.getContext('2d').drawImage(img, 0, 0, 150, 150);
-                    currentImg = cvs.toDataURL('image/jpeg', 0.7);
-                    document.getElementById(targetId).src = currentImg;
+                    tempImg = cvs.toDataURL('image/jpeg', 0.7);
+                    document.getElementById(targetId).src = tempImg;
                 };
                 img.src = e.target.result;
             };
@@ -124,75 +184,84 @@
     }
 
     async function register() {
-        const n = document.getElementById('n-in').value.trim();
-        const p = document.getElementById('p-in').value.trim();
-        if(!n || !p) return alert("اكمل البيانات");
-        
-        document.getElementById('btn-reg').innerText = "جاري الحفظ...";
-        const userData = { name: n, phone: p, img: currentImg };
-        
-        try {
-            await db.ref('users/' + p).set(userData);
-            localStorage.setItem('we_user_v2', JSON.stringify(userData));
-            location.reload(); 
-        } catch(e) {
-            alert("خطأ في الاتصال بالسيرفر");
-            document.getElementById('btn-reg').innerText = "دخول";
-        }
+        const n = document.getElementById('n-reg').value.trim();
+        const p = document.getElementById('p-reg').value.trim();
+        if(!n || !p) return alert("اكمل بياناتك");
+        my = { name: n, phone: p, img: tempImg || "https://cdn-icons-png.flaticon.com/512/149/149071.png" };
+        await db.ref('users/' + p).set(my);
+        localStorage.setItem('we_user_v2', JSON.stringify(my));
+        location.reload();
     }
 
-    function initApp() {
-        document.getElementById('h-avatar').src = my.img;
+    function init() {
+        document.getElementById('header-img').src = my.img;
         loadRecents();
     }
 
+    function toggleProfile(show) {
+        const modal = document.getElementById('profile-modal');
+        if(show) {
+            modal.style.display = 'flex';
+            document.getElementById('edit-pre').src = my.img;
+            document.getElementById('edit-name-input').value = my.name;
+            tempImg = my.img;
+        } else {
+            modal.style.display = 'none';
+        }
+    }
+
+    async function updateProfile() {
+        const newName = document.getElementById('edit-name-input').value.trim();
+        if(!newName) return;
+        my.name = newName;
+        my.img = tempImg;
+        await db.ref('users/' + my.phone).update({ name: my.name, img: my.img });
+        localStorage.setItem('we_user_v2', JSON.stringify(my));
+        document.getElementById('header-img').src = my.img;
+        toggleProfile(false);
+        alert("تم تحديث الملف الشخصي");
+    }
+
+    function logout() {
+        if(confirm("هل أنت متأكد من تسجيل الخروج؟")) {
+            localStorage.clear();
+            location.reload();
+        }
+    }
+
+    // نظام الدردشة المعتاد
     function loadRecents() {
         db.ref('chats').on('value', s => {
-            const list = document.getElementById('recent-list'); list.innerHTML = '';
-            let found = false;
+            const l = document.getElementById('recent-list'); l.innerHTML = '';
             s.forEach(child => {
                 if(child.key.includes(my.phone)) {
-                    found = true;
-                    const pNum = child.key.replace(my.phone, '').replace('_', '');
-                    db.ref('users/' + pNum).once('value', uS => {
+                    const pNum = child.key.replace(my.phone,'').replace('_','');
+                    db.ref('users/'+pNum).once('value', uS => {
                         const u = uS.val();
                         if(u) {
                             const last = Object.values(child.val()).pop();
-                            const div = document.createElement('div');
-                            div.className = 'user-row';
-                            div.innerHTML = `<img src="${u.img}"> <div><b>${u.name}</b><br><small style="color:#888">${last.t}</small></div>`;
-                            div.onclick = () => openChat(u);
-                            list.appendChild(div);
+                            l.innerHTML += `<div class="user-row" onclick='openChat(${JSON.stringify(u)})'><img src="${u.img}"> <div><b>${u.name}</b><br><small style="color:#888">${last.t}</small></div></div>`;
                         }
                     });
                 }
             });
-            if(!found) list.innerHTML = '<center style="margin-top:50px; color:#aaa">لا توجد محادثات. ابدأ الآن بالضغط على +</center>';
         });
     }
 
     function showContacts() {
         document.getElementById('contacts-screen').classList.remove('hidden');
-        document.getElementById('main-screen').classList.add('hidden');
         db.ref('users').once('value', s => {
             const l = document.getElementById('all-list'); l.innerHTML = '';
             s.forEach(c => {
                 const u = c.val();
                 if(u.phone !== my.phone) {
-                    const d = document.createElement('div');
-                    d.className = 'user-row';
-                    d.innerHTML = `<img src="${u.img}"> <b>${u.name}</b>`;
-                    d.onclick = () => { hideContacts(); openChat(u); };
-                    l.appendChild(d);
+                    l.innerHTML += `<div class="user-row" onclick='hideContacts(); openChat(${JSON.stringify(u)})'><img src="${u.img}"> <b>${u.name}</b></div>`;
                 }
             });
         });
     }
 
-    function hideContacts() {
-        document.getElementById('contacts-screen').classList.add('hidden');
-        document.getElementById('main-screen').classList.remove('hidden');
-    }
+    function hideContacts() { document.getElementById('contacts-screen').classList.add('hidden'); }
 
     function openChat(u) {
         peer = u;
@@ -210,22 +279,15 @@
         });
     }
 
-    function send() {
+    function sendMsg() {
         const i = document.getElementById('c-input');
-        if(!i.value.trim() || !peer) return;
+        if(!i.value.trim()) return;
         const id = [my.phone, peer.phone].sort().join('_');
         db.ref('chats/' + id).push({ u: my.phone, t: i.value });
         i.value = '';
     }
 
     function closeChat() { document.getElementById('chat-ui').style.display = 'none'; }
-    
-    function logout() {
-        if(confirm("هل تريد تسجيل الخروج؟")) {
-            localStorage.clear();
-            location.reload();
-        }
-    }
 </script>
 </body>
 </html>
