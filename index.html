@@ -1788,8 +1788,15 @@
 
     function loadRecentChats() {
         const list = document.getElementById('recent-list');
-        // Show cached chats first for instant loading
-        const cachedRecent = JSON.parse(localStorage.getItem('cached_recent_chats_' + my.phone)) || [];
+        // Show cached chats first for instant loading, but filter out deleted ones
+        let cachedRecent = JSON.parse(localStorage.getItem('cached_recent_chats_' + my.phone)) || [];
+        
+        // Filter cache against current deletedChats
+        cachedRecent = cachedRecent.filter(chat => {
+            const dTime = deletedChats[chat.id] || 0;
+            return chat.timestamp > dTime;
+        });
+
         if (cachedRecent.length > 0 && list.innerHTML === '') {
             renderRecentChats(cachedRecent);
         }
@@ -1857,6 +1864,18 @@
         const list = document.getElementById('recent-list');
         if (!list) return;
         list.innerHTML = '';
+        
+        if (validChats.length === 0) {
+            list.innerHTML = `
+                <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: #94a3b8; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">💬</div>
+                    <b style="font-size: 16px; color: #64748b;">لا توجد محادثات نشطة</b>
+                    <p style="font-size: 13px; margin-top: 8px;">ابدأ محادثة جديدة من قائمة جهات الاتصال</p>
+                </div>
+            `;
+            return;
+        }
+
         validChats.forEach(chat => {
             const { id, pNum, user, last, lastKey, count } = chat;
             const displayName = getDisplayName(pNum, user.name);
