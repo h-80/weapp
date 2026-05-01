@@ -614,7 +614,7 @@
             padding: 10px 16px; /* Increased padding for safety */
             background: #f0f2f5;
             display: flex;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 8px;
             align-items: center;
             border-top: 1px solid rgba(15, 23, 42, 0.08);
@@ -623,10 +623,13 @@
             z-index: 10; /* Ensure it's above other elements */
             direction: rtl;
             box-sizing: border-box; /* Crucial for width calculations */
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
         .chat-input-area > button,
         .chat-input-area > .chat-input-pill {
             min-width: 0;
+            flex-shrink: 0;
         }
         .mic-btn {
             width: 50px;
@@ -722,8 +725,7 @@
                 padding: 10px 12px;
             }
             .chat-input-pill {
-                flex: 1 1 100%;
-                width: 100%;
+                flex: 1 1 auto;
                 gap: 6px;
                 padding: 8px 10px;
             }
