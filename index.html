@@ -214,6 +214,27 @@
             background: rgba(37, 211, 102, 0.16);
             transform: translateY(-1px);
         }
+        #add-contact-header-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-width: auto;
+            height: 32px;
+            padding: 0 10px;
+            border-radius: 16px;
+            background: var(--app-theme);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            border: none;
+            box-shadow: 0 8px 18px rgba(37, 211, 102, 0.18);
+            margin-left: 10px;
+        }
+        #add-contact-header-btn:hover {
+            background: #22c55e;
+            transform: translateY(-1px);
+        }
         .call-btn svg {
             width: 24px;
             height: 24px;
@@ -1016,19 +1037,8 @@
         </div>
 
         <div class="chat-header-left">
-            <button id="add-contact-header-btn" class="call-btn" onclick="quickAddContact()" style="display: none; font-size: 24px; font-weight: 400;" title="إضافة لجهات الاتصال">+</button>
-            <div class="chat-actions">
-                <button type="button" class="call-btn video-call-btn" onclick="startCall('video')" title="اتصال فيديو">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17 10.5V7c0-1.1-.9-2-2-2H5C3.9 5 3 5.9 3 7v10c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2v-3.5l4 4v-11l-4 4Z" fill="currentColor"/>
-                    </svg>
-                </button>
-                <button type="button" class="call-btn audio-call-btn" onclick="startCall('audio')" title="اتصال صوتي">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6.62 10.79C8.06 13.99 10.99 16.92 14.19 18.36L16.27 16.28C16.63 15.92 17.18 15.83 17.66 16.02C18.78 16.47 19.98 16.72 21.24 16.72C21.66 16.72 22 17.06 22 17.48V21.24C22 21.66 21.66 22 21.24 22C10.5 22 1.99999 13.5 1.99999 2.76C1.99999 2.34 2.33999 2 2.75999 2H6.51999C6.94999 2 7.28999 2.34 7.28999 2.76C7.28999 4.02 7.53999 5.22 7.99999 6.34C8.18999 6.82 8.10999 7.36 7.74999 7.72L5.66999 9.8C5.49999 9.98 5.45999 10.25 5.55999 10.49L6.62 10.79Z" fill="currentColor"/>
-                    </svg>
-                </button>
-            </div>
+            <button id="add-contact-header-btn" class="btn-add" onclick="quickAddContact()" style="display: none;" title="إضافة لجهات الاتصال">+ إضافة</button>
+            <div class="chat-actions"></div>
         </div>
     </div>
     <div id="c-msgs" class="msgs"></div>
@@ -1077,41 +1087,6 @@
                 <path d="M19 11C19 14.31 16.31 17 13 17H11C7.69 17 5 14.31 5 11H3C3 15.42 6.58 19 11 19V22H13V19C17.42 19 21 15.42 21 11H19Z" fill="currentColor"/>
             </svg>
         </button>
-    </div>
-</div>
-<div id="call-overlay" class="call-overlay">
-    <div class="call-card">
-        <div class="call-info-top">
-            <h3 id="call-peer-name">اسم المستخدم</h3>
-            <div id="call-status-label" class="call-status">
-                <span id="call-type-label">مكالمة We App</span>
-            </div>
-        </div>
-
-        <div id="voice-call-ui" class="voice-call-bg">
-            <div class="pulse-animation"></div>
-            <img id="call-peer-avatar" class="call-avatar-center" src="https://b.top4top.io/p_3771kqoax0.png" alt="صورة المتصل">
-        </div>
-
-        <div id="video-call-ui" class="call-media" style="display: none;">
-            <video id="remote-video" autoplay playsinline></video>
-            <audio id="remote-audio" autoplay></audio>
-            <div id="local-preview" class="call-local-preview">
-                <video id="local-video" autoplay muted playsinline></video>
-            </div>
-        </div>
-
-        <div class="call-actions">
-            <button id="reject-call-btn" type="button" class="call-btn reject-btn" onclick="rejectIncomingCall()" title="رفض">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="transform: rotate(135deg);"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-4.2-6.6-7l2.2-2.2c.3-.3.4-.7.2-1-.4-1.2-.6-2.4-.6-3.6 0-.5-.5-1-1-1H5c-.5 0-1 .5-1 1 0 9.4 7.6 17 17 17 .5 0 1-.5 1-1v-3.5c0-.5-.5-1-1-1z"/></svg>
-            </button>
-            <button id="accept-call-btn" type="button" class="call-btn accept-btn" onclick="acceptIncomingCall()" title="قبول">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-4.2-6.6-7l2.2-2.2c.3-.3.4-.7.2-1-.4-1.2-.6-2.4-.6-3.6 0-.5-.5-1-1-1H5c-.5 0-1 .5-1 1 0 9.4 7.6 17 17 17 .5 0 1-.5 1-1v-3.5c0-.5-.5-1-1-1z"/></svg>
-            </button>
-            <button id="hangup-call-btn" type="button" class="call-btn hangup-btn" onclick="endCall()" style="display: none;" title="إنهاء">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" style="transform: rotate(135deg);"><path d="M20 15.5c-1.2 0-2.4-.2-3.6-.6-.3-.1-.7 0-1 .2l-2.2 2.2c-2.8-1.4-5.1-4.2-6.6-7l2.2-2.2c.3-.3.4-.7.2-1-.4-1.2-.6-2.4-.6-3.6 0-.5-.5-1-1-1H5c-.5 0-1 .5-1 1 0 9.4 7.6 17 17 17 .5 0 1-.5 1-1v-3.5c0-.5-.5-1-1-1z"/></svg>
-            </button>
-        </div>
     </div>
 </div>
 <div id="image-viewer" class="image-viewer" onclick="closeImageViewer()">
@@ -1283,7 +1258,6 @@
             setTimeout(() => {
                 try { loadRecentChats(); } catch(e) { console.error("Error loading chats:", e); }
                 try { loadMyContacts(); } catch(e) { console.error("Error loading contacts:", e); }
-                try { listenForIncomingCalls(); } catch(e) { console.error("Error listening for calls:", e); }
             }, 100);
         } catch (e) {
             console.error("App initialization failed:", e);
