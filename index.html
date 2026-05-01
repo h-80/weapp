@@ -2541,10 +2541,17 @@
 
         typeLabel.innerText = callType === 'video' ? 'مكالمة فيديو We App' : 'مكالمة صوتية We App';
         
-        // Buttons visibility
-        acceptBtn.style.display = state === 'incoming' ? 'flex' : 'none';
-        rejectBtn.style.display = state === 'incoming' ? 'flex' : 'none';
-        hangupBtn.style.display = (state === 'connected' || state === 'calling') ? 'flex' : 'none';
+        const isIncoming = state === 'incoming';
+        const isActiveCall = state === 'connected' || state === 'calling';
+
+        acceptBtn.style.display = isIncoming ? 'flex' : 'none';
+        rejectBtn.style.display = isIncoming ? 'flex' : 'none';
+        hangupBtn.style.display = isActiveCall ? 'flex' : 'none';
+
+        // Button titles for clarity
+        acceptBtn.title = 'قبول المكالمة';
+        rejectBtn.title = 'رفض المكالمة وإنهائها';
+        hangupBtn.title = 'إنهاء المكالمة وإغلاق الشاشة';
 
         // UI Mode (Voice vs Video)
         if (callType === 'video') {
